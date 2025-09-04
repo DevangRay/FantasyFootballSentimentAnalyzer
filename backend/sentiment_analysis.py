@@ -1,13 +1,15 @@
 import spacy
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
-import nfl as nfl
+import re
 import json
+
+import nfl as nfl
 
 nlp = spacy.load("en_core_web_trf")
 sentencizer = nlp.add_pipe("sentencizer")
 
-def name_is_clean(name: str) -> bool:
+def name_is_valid(name: str) -> bool:
     unwanted_names = [
         "rich dodson", "rich", "dodson"
         "matt o'hara", "matt", "o'hara",
@@ -17,6 +19,19 @@ def name_is_clean(name: str) -> bool:
     
     return not name.lower() in unwanted_names
 
+def clean_name_and_sentence_of_nicknames(name: str, sentence: str) -> str:
+    nickname_mappings = {
+        "joker": "Evan Engram",
+        "cmc": "Christian McCaffrey"
+    }
+    
+    if name.lower() in nickname_mappings:
+        sentence = re.sub(name.lower(), nickname_mappings[name.lower()], sentence, flags=re.IGNORECASE)
+        name = nickname_mappings[name.lower()]
+        
+        
+    return name, sentence
+
 def process_transcript(transcript_filepath: str) -> list[str]:
     raw_transcript = open(transcript_filepath, "r").read()
     
@@ -24,17 +39,18 @@ def process_transcript(transcript_filepath: str) -> list[str]:
     sentences = list(doc.sents)
     stringified_sentences = [sent.text.strip() for sent in sentences]
     with open("../resources/sentences.json", "w", encoding="utf-8") as f:
-            json.dump(stringified_sentences, f, ensure_ascii=False, indent=2)
+        json.dump(stringified_sentences, f, ensure_ascii=False, indent=2)
     
     identified_names = []
     for i, sent in enumerate(sentences, start=0):
         names = [ent.text for ent in sent.ents if ent.label_ == "PERSON"]
         for name in names:
-            if name_is_clean(name):
+            if name_is_valid(name):
+                clean_name, clean_sentence = clean_name_and_sentence_of_nicknames(name, sent.text.strip())
                 identified_names.append({
-                    "name": name,
+                    "name": clean_name,
                     "sentence_index": i,
-                    "sentence": sent.text.strip()
+                    "sentence": clean_sentence
                 })
     
     for identified_name in identified_names:
