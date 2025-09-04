@@ -15,3 +15,7 @@
 # Transcribing
 - `whisperx ..\resources\rookie_te_breakout_incoming!_top_12_tes_for_fantasy_football_2025.wav --compute_type int8 --min_speakers 3 --max_speakers 3`
     -- needs ffmpeg
+
+# Sentiment analysis
+- cleaning input
+    - `python -m spacy download en_core_web_sm`
