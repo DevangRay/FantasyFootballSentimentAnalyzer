@@ -107,8 +107,17 @@ def match_players_to_roster(identified_names: list[dict]):
 
 def main():
     identified_names, raw_sentences = process_transcript("../resources/transcript.txt")
+    print("Total Identified Names:", len(identified_names))
+    
     final_player_object = match_players_to_roster(identified_names)
-    sa.analyze_sentiment(final_player_object, raw_sentences)
+    print("Total Unique Players Mentioned:", len(final_player_object))
+    
+    player_sentiments = sa.analyze_sentiment(final_player_object, raw_sentences)
+    print("Total Players with Sentiment Analysis:", len(player_sentiments))
+    
+    with open("../outputs/player_sentiments.json", "w", encoding="utf-8") as f:
+        json.dump(player_sentiments, f, ensure_ascii=False, indent=2)
+    print("Wrote player_sentiments.json")
 
 if __name__ == "__main__":
     main()
