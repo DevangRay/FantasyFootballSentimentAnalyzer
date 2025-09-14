@@ -6,7 +6,7 @@ import json
 
 import utils.name_cleaning as name_cleaning
 import utils.nfl as nfl
-import sentiment_analysis as sa
+import utils.sentiment_analysis as sa
 
 nlp = spacy.load("en_core_web_trf")
 sentencizer = nlp.add_pipe("sentencizer")

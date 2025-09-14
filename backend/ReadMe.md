@@ -19,3 +19,6 @@
 # Sentiment analysis
 - cleaning input
     - `python -m spacy download en_core_web_sm`
+
+# Miscellaneous
+- If issues with Missing Imports in VS Code, ensure python interpreter is pointing to virtual environment
