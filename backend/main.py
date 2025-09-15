@@ -110,18 +110,11 @@ def main():
     final_player_object = match_players_to_roster(identified_names)
     print("Total Unique Players Mentioned:", len(final_player_object))
     
-    bart_player_sentiments = bart.analyze_sentiment(final_player_object, raw_sentences)
-    print("Total Players with Bart Sentiment Analysis:", len(bart_player_sentiments))
-    
-    with open("../outputs/only_matches/bart/player_sentiments.json", "w", encoding="utf-8") as f:
-        json.dump(bart_player_sentiments, f, ensure_ascii=False, indent=2)
-    print("Wrote bart player_sentiments.json")
-    
-    nli_player_sentiments = nli.analyze_sentiment(final_player_object, raw_sentences)
-    print("Total Players with NLI Sentiment Analysis:", len(nli_player_sentiments))
+    player_sentiments = nli.analyze_sentiment(final_player_object, raw_sentences)
+    print("Total Players with Sentiment Analysis:", len(player_sentiments))
     
     with open("../outputs/only_matches/nli/player_sentiments.json", "w", encoding="utf-8") as f:
-        json.dump(nli_player_sentiments, f, ensure_ascii=False, indent=2)
+        json.dump(player_sentiments, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
     main()
