@@ -6,7 +6,8 @@ import json
 
 import utils.name_cleaning as name_cleaning
 import utils.nfl as nfl
-import utils.sentiment_analysis as sa
+import sentiment_analysis.bart_large_mnli as bart
+import sentiment_analysis.nli_deberta_v3_base as nli
 
 nlp = spacy.load("en_core_web_trf")
 sentencizer = nlp.add_pipe("sentencizer")
@@ -61,42 +62,39 @@ def match_players_to_roster(identified_names: list[dict]):
        
         final_name = ""
         status = ""
-        if (len(possible_matches) == 1): 
-            # perfect match
-            final_name = possible_matches[0][0]
-            status = "perfect match"
-        elif (len(possible_matches) > 1):
-            # multiple matches
-            # final_name = " | ".join(possible_matches)
-            final_name = possible_matches[0][0]
-            status = "best of multiple matches"
-        else:
+        if (len(possible_matches) == 0):
             # no matches
             final_name = player
             status = "no match"
-
-        if final_name in final_player_object:
-            final_player_object[final_name]['occurrence_array'].append({
-                "transcript_name": player,
-                "matched_name": final_name,
-                "score": possible_matches[0][1] if len(possible_matches) > 0 else 0,
-                "status": status,
-                "sentence_index": player_object['sentence_index'],
-                "sentence": player_object['sentence']
-            })
-            final_player_object[final_name]['mentioned_sentence_indexes'].add(player_object['sentence_index'])
         else:
-            final_player_object[final_name] = {
-                'occurrence_array': [{
+            # perfect match or multiple matches
+            final_name = possible_matches[0][0]
+            # replace name in sentence with final_name
+            player_object['sentence'] = player_object['sentence'].replace(player, final_name)
+            status = "perfect match" if len(possible_matches) == 1 else "best of multiple matches"
+            
+            if final_name in final_player_object:
+                final_player_object[final_name]['occurrence_array'].append({
                     "transcript_name": player,
                     "matched_name": final_name,
                     "score": possible_matches[0][1] if len(possible_matches) > 0 else 0,
                     "status": status,
                     "sentence_index": player_object['sentence_index'],
                     "sentence": player_object['sentence']
-                }],
-                'mentioned_sentence_indexes': set([player_object['sentence_index']])
-            }
+                })
+                final_player_object[final_name]['mentioned_sentence_indexes'].add(player_object['sentence_index'])
+            else:
+                final_player_object[final_name] = {
+                    'occurrence_array': [{
+                        "transcript_name": player,
+                        "matched_name": final_name,
+                        "score": possible_matches[0][1] if len(possible_matches) > 0 else 0,
+                        "status": status,
+                        "sentence_index": player_object['sentence_index'],
+                        "sentence": player_object['sentence']
+                    }],
+                    'mentioned_sentence_indexes': set([player_object['sentence_index']])
+                }
     
     # sorted_final_player_object = sorted(final_player_object, key=lambda x: x['matched_name'].lower()) 
     # sorted_final_player_object = dict(sorted(final_player_object.items()))
@@ -112,12 +110,18 @@ def main():
     final_player_object = match_players_to_roster(identified_names)
     print("Total Unique Players Mentioned:", len(final_player_object))
     
-    player_sentiments = sa.analyze_sentiment(final_player_object, raw_sentences)
-    print("Total Players with Sentiment Analysis:", len(player_sentiments))
+    bart_player_sentiments = bart.analyze_sentiment(final_player_object, raw_sentences)
+    print("Total Players with Bart Sentiment Analysis:", len(bart_player_sentiments))
     
-    with open("../outputs/player_sentiments.json", "w", encoding="utf-8") as f:
-        json.dump(player_sentiments, f, ensure_ascii=False, indent=2)
-    print("Wrote player_sentiments.json")
+    with open("../outputs/only_matches/bart/player_sentiments.json", "w", encoding="utf-8") as f:
+        json.dump(bart_player_sentiments, f, ensure_ascii=False, indent=2)
+    print("Wrote bart player_sentiments.json")
+    
+    nli_player_sentiments = nli.analyze_sentiment(final_player_object, raw_sentences)
+    print("Total Players with NLI Sentiment Analysis:", len(nli_player_sentiments))
+    
+    with open("../outputs/only_matches/nli/player_sentiments.json", "w", encoding="utf-8") as f:
+        json.dump(nli_player_sentiments, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
     main()

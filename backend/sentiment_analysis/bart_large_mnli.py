@@ -35,6 +35,8 @@ def analyze_sentiment(final_player_object: dict, raw_sentences: list[str]):
         sentiment_object[player] = {
             "sentiment_consensus": sentiment_consensus,
             "detailed_sentiment": result,
+            "status": final_player_object[player]['occurrence_array'][0]['status'],
+            "transcript_name": final_player_object[player]['occurrence_array'][0]['transcript_name']
             # "occurrences": final_player_object[player]['occurrence_array']
         }
     
