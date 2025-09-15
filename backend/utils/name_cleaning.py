@@ -1,5 +1,6 @@
 nickname_mappings = {
         "joker": "Evan Engram",
+        "evan ingram": "Evan Engram",
         "enjoku": "David Njoku",
         "injoku": "David Njoku",
         "andoku": "David Njoku",
@@ -13,8 +14,11 @@ nickname_mappings = {
         "dolan concade": "Dalton Kincaid",
         "dinc concaid": "Dalton Kincaid",
         "dan concade": "Dalton Kincaid",
-        "flaco": "Joe Flacco",
+        "brock bowowers": "Brock Bowers",
+        "brock b": "Brock Bowers",
+        "brock bower": "Brock Bowers",
         "george kd": "George Kittle",
+        "kd": "George Kittle",
         "hawinson": "TJ Hockenson",
         "hinson": "TJ Hockenson",
         "hockson": "TJ Hockenson",
@@ -26,13 +30,22 @@ nickname_mappings = {
         "kyle pittz": "Kyle Pitts",
         "leaporta": "Sam LePorta",
         "leapora": "Sam LePorta",
+        "sam laora": "Sam LePorta",
         "trey mc bry": "Trey McBride",
+        "tyler war": "Tyler Warren",
         "zach z": "Zach Ertz",
         "zack z": "Zach Ertz",
         "zacks": "Zach Ertz",
         "sonat": "Ben Sinnott",
+        "flaco": "Joe Flacco",
+        "dylan gabriel": "Dillon Gabriel",
         "judy": "Jerry Jeudy",
-        "cmc": "Christian McCaffrey"
+        "josh ds": "Josh Downs",
+        "cmc": "Christian McCaffrey",
+        "rasheed rice": "Rashee Rice",
+        "rashid rice": "Rashee Rice",
+        "bejan": "Bijan Robinson",
+        
     }
 
 import re
@@ -44,7 +57,8 @@ def name_is_valid(name: str) -> bool:
         "g price", "g", "price",
         "garrett", 
         "god",
-        "nerd herd"
+        "nerd herd",
+        "matt miller"
     ]
     
     return not name.lower() in unwanted_names
