@@ -61,10 +61,10 @@ def name_is_valid(name: str) -> bool:
     unwanted_names = [
         "rich dodson", "rich", "dodson"
         "matt o'hara", "matt", "o'hara",
-        "Matt O'Hara",
         "g price", "g", "price",
         "garrett", 
-        "god",
+        "god", 
+        "taylor swift",
         "nerd herd",
         "matt miller"
     ]
