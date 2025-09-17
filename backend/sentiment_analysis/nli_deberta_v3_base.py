@@ -1,5 +1,6 @@
 from sentence_transformers import CrossEncoder
 import numpy as np
+import statistics
 import utils.context_window as context_window
 
 model = CrossEncoder('cross-encoder/nli-deberta-v3-base')
@@ -41,12 +42,18 @@ def analyze_sentiment(final_player_object: dict, raw_sentences: list[str]):
         
         scores_matrix = np.array([list(result["scores"].values()) for result in results])
         average_scores = np.mean(scores_matrix, axis=0)
-        final_label = candidate_labels[np.argmax(average_scores)]
+        
+        label_array = [candidate_labels[int(np.argmax(score_set))] for score_set in scores_matrix]
+            
+        most_frequent_label = statistics.mode(label_array)
+        
+        average_label = candidate_labels[np.argmax(average_scores)]
         
         average_scores_dict = {label: float(score) for label, score in zip(candidate_labels, average_scores)}
         sentiment_object[player] = {
             "sentiment_consensus": average_scores_dict,
-            "final_label": final_label,
+            "average_label": average_label,
+            "most_frequent_label": most_frequent_label,
             "detailed_sentiment": results,
             "status": final_player_object[player]['occurrence_array'][0]['status'],
             "transcript_name": final_player_object[player]['occurrence_array'][0]['transcript_name']

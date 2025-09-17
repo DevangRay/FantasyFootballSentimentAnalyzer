@@ -71,6 +71,7 @@ def match_players_to_roster(identified_names: list[dict]):
             final_name = possible_matches[0][0]
             # replace name in sentence with final_name
             player_object['sentence'] = player_object['sentence'].replace(player, final_name)
+            
             status = "perfect match" if len(possible_matches) == 1 else "best of multiple matches"
             
             if final_name in final_player_object:
