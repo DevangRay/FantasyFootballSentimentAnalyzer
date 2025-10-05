@@ -138,6 +138,19 @@ def example_analysis() -> dict:
         
     return player_sentiments
 
+def set_up_to_analyze(transcript: str) -> dict:
+    identified_names, raw_sentences = process_transcript(podcast_transcript_text=transcript)
+    print("Total Identified Names:", len(identified_names))
+    
+    final_player_object = match_players_to_roster(identified_names)
+    print("Total Unique Players Mentioned:", len(final_player_object))
+    print(final_player_object)
+    
+    return {
+        "final_player_object": final_player_object,
+        "stripped_sentences": [sent.text.strip() for sent in raw_sentences]
+    }
+
 def analyze(transcript: str) -> dict:
     identified_names, raw_sentences = process_transcript(podcast_transcript_text=transcript)
     print("Total Identified Names:", len(identified_names))
