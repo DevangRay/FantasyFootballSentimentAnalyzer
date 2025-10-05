@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import requests
 import analyzer as sentiment_analyzer
 
@@ -8,8 +8,24 @@ app = Flask(__name__)
 def hello_world():
     return "<p>Hello, World!</p>"
 
-@app.route("/analyze", methods=['GET'])
+@app.route("/analyze", methods=['POST'])
 def analyze():
+    print("analyze endpoint hit")
+    print("transcript is: ")
+    data = request.get_json()
+    
+    transcript = data.get('transcript', None)
+    
+    if (not transcript):
+        return jsonify({"error": "No transcript provided"}), 400
+    
+    print("transcript received, analyzing...")
+    response = sentiment_analyzer.analyze(transcript)
+    
+    return jsonify(response)
+
+@app.route("/analyze/example", methods=['GET'])
+def analyzeExample():
     results = sentiment_analyzer.main()
     return jsonify(results)
 
@@ -42,7 +58,7 @@ def get_nfl_athletes():
     except requests.RequestException as e:
         return jsonify({'error': str(e)}), 500
     
-@app.route("/nfl/player/photo/<player_id>", methods=['GET'])
+@app.route("/nfl/athlete/photo/<player_id>", methods=['GET'])
 def get_player_photo(player_id):
     # https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/15847.png
     url = f"https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/{player_id}.png"

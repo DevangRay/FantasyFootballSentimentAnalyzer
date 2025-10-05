@@ -13,9 +13,17 @@ import sentiment_analysis.nli_deberta_v3_base as nli
 nlp = spacy.load("en_core_web_trf")
 sentencizer = nlp.add_pipe("sentencizer")
     
-def process_transcript(podcast_transcript_filepath: str) -> list[str]:
+def process_transcript(podcast_transcript_filepath=None, podcast_transcript_text=None )-> tuple[list[dict], list[str]]:
     # read transcript file to variable raw_transcript
-    raw_transcript = open(podcast_transcript_filepath, "r", encoding="utf-8").read()
+    raw_transcript = ""
+    if (podcast_transcript_filepath):
+        print("reading transcript from file")
+        raw_transcript = open(podcast_transcript_filepath, "r", encoding="utf-8").read()
+    elif podcast_transcript_text:
+        print("reading transcript from text input")
+        raw_transcript = podcast_transcript_text
+    else: 
+        return ValueError("Either podcast_transcript_filepath or podcast_transcript_text must be provided.")
     
     # use spacy to split raw_transcript into sentences and identify named entities
     doc = nlp(raw_transcript)
@@ -49,7 +57,7 @@ def process_transcript(podcast_transcript_filepath: str) -> list[str]:
     return identified_names, raw_sentences
     
     
-def match_players_to_roster(identified_names: list[dict]):
+def match_players_to_roster(identified_names: list[dict]) -> dict:
     # save list of real NFL players to nfl_player_roster
     # nfl.get_nfl_players()
     nfl_player_roster = []
@@ -111,6 +119,32 @@ def match_players_to_roster(identified_names: list[dict]):
     # print(sorted_final_player_object)    
     return final_player_object
 
+def example_analysis() -> dict:
+    transcipt_file_path = "../resources/transcript.txt"
+    identified_names, raw_sentences = process_transcript(podcast_transcript_filepath=transcipt_file_path)
+    print("Total Identified Names:", len(identified_names))
+    
+    final_player_object = match_players_to_roster(identified_names)
+    print("Total Unique Players Mentioned:", len(final_player_object))
+    print(final_player_object)
+    
+    player_sentiments = nli.analyze_sentiment(final_player_object, raw_sentences)
+    print("Total Players with Sentiment Analysis:", len(player_sentiments))
+        
+    return player_sentiments
+
+def analyze(transcript: str) -> dict:
+    identified_names, raw_sentences = process_transcript(podcast_transcript_text=transcript)
+    print("Total Identified Names:", len(identified_names))
+    
+    final_player_object = match_players_to_roster(identified_names)
+    print("Total Unique Players Mentioned:", len(final_player_object))
+    print(final_player_object)
+    
+    player_sentiments = nli.analyze_sentiment(final_player_object, raw_sentences)
+    print("Total Players with Sentiment Analysis:", len(player_sentiments))
+        
+    return player_sentiments
 
 
 def main():
@@ -143,7 +177,5 @@ def main():
     with open("../outputs/only_matches/nli/player_sentiments.json", "w", encoding="utf-8") as f:
         json.dump(player_sentiments, f, ensure_ascii=False, indent=2)
         
-    return player_sentiments
-
 # if __name__ == "__main__":
 #     main()
