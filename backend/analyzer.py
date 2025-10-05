@@ -10,7 +10,7 @@ import utils.nfl as nfl
 # import sentiment_analysis.bart_large_mnli as bart
 import sentiment_analysis.nli_deberta_v3_base as nli
 
-nlp = spacy.load("en_core_web_trf")
+nlp = spacy.load("en_core_web_md")
 sentencizer = nlp.add_pipe("sentencizer")
     
 def process_transcript(podcast_transcript_filepath=None, podcast_transcript_text=None )-> tuple[list[dict], list[str]]:
