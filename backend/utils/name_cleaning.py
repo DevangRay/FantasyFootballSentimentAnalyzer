@@ -2,6 +2,8 @@ nickname_mappings = {
         "joker": "Evan Engram",
         "evan ingram": "Evan Engram",
         "enjoku": "David Njoku",
+        "david and joku": "David Njoku",
+        "david and david njoku": "David Njoku",
         "injoku": "David Njoku",
         "andoku": "David Njoku",
         "jook": "David Njoku",
@@ -59,14 +61,14 @@ import re
 
 def name_is_valid(name: str) -> bool:
     unwanted_names = [
-        "rich dodson", "rich", "dodson"
-        "matt o'hara", "matt", "o'hara",
+        "rich dodson", "rich", "dodson", "dotson",
+        "matt o'hara", "matt", "o'hara", "Matt O'Hara", 
         "g price", "g", "price",
         "garrett", 
         "god", 
         "taylor swift",
-        "nerd herd",
-        "matt miller"
+        "nerd herd", "nerd30",
+        "matt miller", "chalky chalk",
     ]
     
     return not name.lower() in unwanted_names

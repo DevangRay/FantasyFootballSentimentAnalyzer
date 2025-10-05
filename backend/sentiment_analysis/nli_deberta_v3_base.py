@@ -19,11 +19,19 @@ def analyze_sentiment(final_player_object: dict, raw_sentences: list[str]):
         
         def make_hypotheses(player, label):
             if label == "positive":
+                return f"{player} will perform at a high level or positively influence fantasy points."
+            elif label == "negative":
+                return f"{player} will perform at a low level or negatively impact fantasy points."
+            else:
+                return f"{player} will perform as average or neutrally impact fantasy points."
+            """
+            if label == "positive":
                 return f"{player} will perform at a high level and positively influence fantasy points."
             elif label == "negative":
                 return f"{player} will underperform or negatively impact fantasy points."
             else:
                 return f"{player} will have an average or neutral impact."
+            """
 
         results = []
         for text in player_text:
