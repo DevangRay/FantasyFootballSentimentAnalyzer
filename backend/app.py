@@ -1,15 +1,19 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import requests
 import analyzer as sentiment_analyzer
 
 app = Flask(__name__)
+CORS(app, origins=[
+    "http://localhost:3000",
+])
 
 @app.route("/")
 def hello_world():
     return "<p>Hello, World!</p>"
 
-@app.route("/analyze", methods=['POST'])
-def analyze():
+@app.route("/analyze/setup", methods=['POST'])
+def analyzeSetup():
     print("analyze endpoint hit")
     print("transcript is: ")
     data = request.get_json()
@@ -20,7 +24,7 @@ def analyze():
         return jsonify({"error": "No transcript provided"}), 400
     
     print("transcript received, analyzing...")
-    response = sentiment_analyzer.analyze(transcript)
+    response = sentiment_analyzer.set_up_to_analyze(transcript)
     
     return jsonify(response)
 

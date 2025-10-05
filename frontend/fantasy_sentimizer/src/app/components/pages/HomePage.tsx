@@ -3,6 +3,7 @@ import { useState } from "react"
 
 import TextUpload from "../TextUpload";
 import FileUploadDialog from "../dialogs/FileUploadDialog";
+import AnalysisController from "../AnalysisController";
 
 export default function HomePage() {
     const [submittedText, setSubmittedText] = useState<string | null>(null);
@@ -20,7 +21,7 @@ export default function HomePage() {
                     </>
                     : <>
                         <section className="flex-1 flex">
-                            {submittedText}
+                            <AnalysisController submittedText={submittedText} />
                         </section>
                     </>
             }
