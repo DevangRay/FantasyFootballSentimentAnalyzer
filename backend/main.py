@@ -6,15 +6,15 @@ import json
 
 import utils.name_cleaning as name_cleaning
 import utils.nfl as nfl
-import sentiment_analysis.bart_large_mnli as bart
+# import sentiment_analysis.bart_large_mnli as bart
 import sentiment_analysis.nli_deberta_v3_base as nli
 
 nlp = spacy.load("en_core_web_trf")
 sentencizer = nlp.add_pipe("sentencizer")
     
-def process_transcript(transcript_filepath: str) -> list[str]:
+def process_transcript(podcast_transcript_filepath: str) -> list[str]:
     # read transcript file to variable raw_transcript
-    raw_transcript = open(transcript_filepath, "r").read()
+    raw_transcript = open(podcast_transcript_filepath, "r", encoding="utf-8").read()
     
     # use spacy to split raw_transcript into sentences and identify named entities
     doc = nlp(raw_transcript)
@@ -30,8 +30,13 @@ def process_transcript(transcript_filepath: str) -> list[str]:
     for i, sent in enumerate(raw_sentences, start=0):
         names = [ent.text for ent in sent.ents if ent.label_ == "PERSON"]
         for name in names:
-            if name_cleaning.name_is_valid(name):
-                clean_name = name_cleaning.replace_nickname_in_name(name)
+            # Remove leading articles from the name (e.g., "a Jackson Dart" -> "Jackson Dart")
+            cleaned_name = name.strip()
+            for article in ["a ", "an ", "the "]:
+                if cleaned_name.lower().startswith(article):
+                    cleaned_name = cleaned_name[len(article):]
+            if name_cleaning.name_is_valid(cleaned_name):
+                clean_name = name_cleaning.replace_nickname_in_name(cleaned_name)
                 clean_sentence = name_cleaning.replace_nickname_in_sentence(sent.text.strip())
                 identified_names.append({
                     "name": clean_name,
@@ -70,6 +75,7 @@ def match_players_to_roster(identified_names: list[dict]):
             # perfect match or multiple matches
             final_name = possible_matches[0][0]
             # replace name in sentence with final_name
+            original_sentence = player_object['sentence']
             player_object['sentence'] = player_object['sentence'].replace(player, final_name)
             
             status = "perfect match" if len(possible_matches) == 1 else "best of multiple matches"
@@ -81,7 +87,8 @@ def match_players_to_roster(identified_names: list[dict]):
                     "score": possible_matches[0][1] if len(possible_matches) > 0 else 0,
                     "status": status,
                     "sentence_index": player_object['sentence_index'],
-                    "sentence": player_object['sentence']
+                    "sentence": player_object['sentence'],
+                    "original sentence": original_sentence
                 })
                 final_player_object[final_name]['mentioned_sentence_indexes'].add(player_object['sentence_index'])
             else:
@@ -92,7 +99,8 @@ def match_players_to_roster(identified_names: list[dict]):
                         "score": possible_matches[0][1] if len(possible_matches) > 0 else 0,
                         "status": status,
                         "sentence_index": player_object['sentence_index'],
-                        "sentence": player_object['sentence']
+                        "sentence": player_object['sentence'],
+                        "original sentence": original_sentence
                     }],
                     'mentioned_sentence_indexes': set([player_object['sentence_index']])
                 }
@@ -107,9 +115,12 @@ def match_players_to_roster(identified_names: list[dict]):
 def main():
     identified_names, raw_sentences = process_transcript("../resources/transcript.txt")
     print("Total Identified Names:", len(identified_names))
+    with open("../outputs/identified_names/nli_identified_names.json", "w", encoding="utf-8") as f:
+        json.dump(identified_names, f, ensure_ascii=False, indent=2)
     
     final_player_object = match_players_to_roster(identified_names)
     print("Total Unique Players Mentioned:", len(final_player_object))
+    print(final_player_object)
     
     player_sentiments = nli.analyze_sentiment(final_player_object, raw_sentences)
     print("Total Players with Sentiment Analysis:", len(player_sentiments))
