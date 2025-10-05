@@ -142,6 +142,8 @@ def main():
     
     with open("../outputs/only_matches/nli/player_sentiments.json", "w", encoding="utf-8") as f:
         json.dump(player_sentiments, f, ensure_ascii=False, indent=2)
+        
+    return player_sentiments
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
