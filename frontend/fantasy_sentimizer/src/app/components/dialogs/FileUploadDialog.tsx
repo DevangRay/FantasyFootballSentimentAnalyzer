@@ -24,7 +24,6 @@ import { useState } from "react"
 export default function FileUploadDialog({ setSubmittedText }: { setSubmittedText: (text: string) => void }) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [file, setFile] = useState<File[]>([]);
-    const [fileContent, setFileContent] = useState<string>("");
     const [uploadingFile, setUploadingFile] = useState<boolean>(false);
 
     function handleDrop(droppedFile: File[]) {
@@ -45,28 +44,21 @@ export default function FileUploadDialog({ setSubmittedText }: { setSubmittedTex
 
         console.log("Uploading file: ", file);
         const reader = new FileReader();
-        // reader.onload = (event) => {
-        //     const text = event.target?.result as string;
-        //     setFileContent(text);
-        //     console.log("File content: ", text);
-        // };
-        // reader.readAsText(file[0]);
 
         // simulate upload time
         setTimeout(() => {
             reader.onload = (event) => {
                 const text = event.target?.result as string;
-                setFileContent(text);
+                setSubmittedText(text);
+                setUploadingFile(false);
+                setOpenDialog(false);
+                setFile([]);
                 console.log("File content: ", text);
             };
             reader.readAsText(file[0]);
-            
-            console.log("File uploaded");
-            setUploadingFile(false);
-            setOpenDialog(false);
-            setFile([]);
 
-            setSubmittedText(fileContent)
+            console.log("File uploaded");
+
         }, 1500);
     }
 
