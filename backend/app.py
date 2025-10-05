@@ -40,15 +40,25 @@ def get_nfl_athletes():
         print(data)
         athletes_array = data['athletes']
         
-        output_array = []
+        output_array = {}
         for athlete in athletes_array:
             athlete_object = {
-                'name': athlete['displayName'],
+                'id': athlete['id'],
                 'team': athlete['team']['displayName']
             }
             print(athlete_object)
             
-            output_array.append(athlete_object['name'])
+            output_array[athlete['displayName']] = athlete_object
+        # output_array = []
+        # for athlete in athletes_array:
+        #     athlete_object = {
+        #         'id': athlete['id'],
+        #         'name': athlete['displayName'],
+        #         'team': athlete['team']['displayName']
+        #     }
+        #     print(athlete_object)
+            
+        #     output_array.append(athlete_object)
             
         with open('../resources/nfl_roster.json', 'w') as f:
             import json

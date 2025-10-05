@@ -60,15 +60,18 @@ def process_transcript(podcast_transcript_filepath=None, podcast_transcript_text
 def match_players_to_roster(identified_names: list[dict]) -> dict:
     # save list of real NFL players to nfl_player_roster
     # nfl.get_nfl_players()
-    nfl_player_roster = []
+    nfl_player_roster = {}
     with open("../resources/nfl_roster.json", "r") as f:
         nfl_player_roster = json.load(f)
+        
+    # nfl_player_names = [player['name'] for player in nfl_player_roster]
+    nfl_player_names = nfl_player_roster.keys()
 
     # fuzzy match identified names to nfl_player_roster, and save in final_player_object
     final_player_object = {}
     for player_object in identified_names:
         player = player_object['name']
-        closest_player_list = process.extract(player, nfl_player_roster, limit=5, scorer=fuzz.token_set_ratio)
+        closest_player_list = process.extract(player, nfl_player_names, limit=5, scorer=fuzz.token_set_ratio)
                 
         possible_matches = [close_player for close_player in closest_player_list if close_player[1] == 100]
         if len(possible_matches) < 1: 
@@ -92,6 +95,7 @@ def match_players_to_roster(identified_names: list[dict]) -> dict:
             if final_name in final_player_object:
                 final_player_object[final_name]['occurrence_array'].append({
                     "transcript_name": player,
+                    "player_id": nfl_player_roster[final_name]['id'],
                     "matched_name": final_name,
                     "score": possible_matches[0][1] if len(possible_matches) > 0 else 0,
                     "status": status,
@@ -104,6 +108,7 @@ def match_players_to_roster(identified_names: list[dict]) -> dict:
                 final_player_object[final_name] = {
                     'occurrence_array': [{
                         "transcript_name": player,
+                        "player_id": nfl_player_roster[final_name]['id'],
                         "matched_name": final_name,
                         "score": possible_matches[0][1] if len(possible_matches) > 0 else 0,
                         "status": status,
