@@ -146,6 +146,11 @@ def set_up_to_analyze(transcript: str) -> dict:
     print("Total Unique Players Mentioned:", len(final_player_object))
     print(final_player_object)
     
+    # Convert sets to lists for JSON serialization
+    for player in final_player_object.values():
+        if isinstance(player.get('mentioned_sentence_indexes'), set):
+            player['mentioned_sentence_indexes'] = list(player['mentioned_sentence_indexes'])
+    
     return {
         "final_player_object": final_player_object,
         "stripped_sentences": [sent.text.strip() for sent in raw_sentences]
