@@ -12,9 +12,27 @@ CORS(app, origins=[
 def hello_world():
     return "<p>Hello, World!</p>"
 
+@app.route("/analyze", methods=['POST'])
+def analyze():
+    print("analyze endpoint hit")
+    print("transcript is: ")
+    data = request.get_json()
+    print(data)
+    
+    
+    transcript = data.get('transcript', None)
+    
+    if (not transcript):
+        return jsonify({"error": "No transcript provided"}), 469
+    
+    print("transcript received, analyzing...")
+    response = sentiment_analyzer.analyze(transcript)
+    
+    return jsonify(response)
+
 @app.route("/analyze/setup", methods=['POST'])
 def analyzeSetup():
-    print("analyze endpoint hit")
+    print("analyze/setup endpoint hit")
     print("transcript is: ")
     data = request.get_json()
     
@@ -35,11 +53,13 @@ def analyzeExample():
 
 @app.route('/nfl/athletes', methods=['GET'])
 def get_nfl_athletes():
+    print("in get_nfl_athletes")
     url = "https://partners.api.espn.com/v2/sports/football/nfl/athletes?limit=20000"
     try:
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
+        print("data received")
         
         print(data)
         athletes_array = data['athletes']
@@ -53,6 +73,7 @@ def get_nfl_athletes():
             print(athlete_object)
             
             output_array[athlete['displayName']] = athlete_object
+        print("output_array constructed")
         # output_array = []
         # for athlete in athletes_array:
         #     athlete_object = {
@@ -63,11 +84,12 @@ def get_nfl_athletes():
         #     print(athlete_object)
             
         #     output_array.append(athlete_object)
-            
+        print("writing to nfl_roster.json")
         with open('../resources/nfl_roster.json', 'w') as f:
             import json
             json.dump(output_array, f, ensure_ascii=False, indent=2)
         
+        print("returning output_array")
         return jsonify(output_array)
     except requests.RequestException as e:
         return jsonify({'error': str(e)}), 500

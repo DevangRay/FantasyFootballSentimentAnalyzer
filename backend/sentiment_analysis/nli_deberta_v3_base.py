@@ -64,7 +64,9 @@ def analyze_sentiment(final_player_object: dict, raw_sentences: list[str]):
             "most_frequent_label": most_frequent_label,
             "detailed_sentiment": results,
             "status": final_player_object[player]['occurrence_array'][0]['status'],
-            "transcript_name": final_player_object[player]['occurrence_array'][0]['transcript_name']
+            "transcript_name": final_player_object[player]['occurrence_array'][0]['transcript_name'],
+            "player_id": final_player_object[player]['occurrence_array'][0]['player_id'],
+            "player_team": final_player_object[player]['occurrence_array'][0]['player_team'],
         }
     
     return sentiment_object
