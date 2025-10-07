@@ -23,13 +23,13 @@ export function ImageWithFallback({
     fill = false,
     priority = false
 }: ImageWithFallbackProps) {
-    const [imgSrc, setImgSrc] = useState(src);
-    const [isError, setIsError] = useState(false);
+    const [imgSrc, setImgSrc] = useState<string>(src);
+    const [isError, setIsError] = useState<boolean>(false);
 
     const handleError = () => {
         if (!isError) {
             setIsError(true);
-            setImgSrc(src);
+            setImgSrc("/images/default_profile.jpeg");
         }
     };
 

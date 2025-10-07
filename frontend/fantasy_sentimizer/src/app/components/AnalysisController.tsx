@@ -14,6 +14,7 @@ import {
 import { getPlayerObjectForAnalysis, getNFLPlayers, performAnalysis } from "../api/sentiment_analysis_api";
 import { analyzeSentiment } from "../utils/sentiment_analysis";
 import { Spinner } from "@/components/ui/spinner";
+import { ImageWithFallback } from "./ImageWithBackup";
 
 
 interface SentimentScores {
@@ -8050,23 +8051,25 @@ export default function AnalysisController({ submittedText }: { submittedText: s
                                     <Card>
                                         <CardHeader>
                                             <CardTitle>{player}</CardTitle>
-                                            <CardDescription>{analysisResult[player].player_id}</CardDescription>
-                                            {/* <CardAction>Card Action</CardAction> */}
+                                            <CardDescription>Player Matching: {analysisResult[player].status} | Original Name: {analysisResult[player].transcript_name}</CardDescription>
+                                            <CardAction>See more details</CardAction>
                                         </CardHeader>
                                         <CardContent>
-                                            {
-                                                <img src={`https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${analysisResult[player].player_id}.png`}></img>
-                                            }
+                                            <ImageWithFallback src={`https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${analysisResult[player].player_id}.png`} alt={`${player}'s Profile Photo`} width={100} height={100} />
+                                            <>
+                                                <h3>Average Label: {analysisResult[player].average_label}</h3>
+                                                <h3>Mode Label: {analysisResult[player].most_frequent_label}</h3>
+                                            </>
                                         </CardContent>
                                         <CardFooter>
-                                            <p>Card Footer</p>
+                                            <>
+                                                <h4>Ratings:</h4>
+                                                <h4>Negative {analysisResult[player].sentiment_consensus.negative}</h4>
+                                                <h4>Positive {analysisResult[player].sentiment_consensus.positive}</h4>
+                                                <h4>Neutral {analysisResult[player].sentiment_consensus.neutral}</h4>
+                                            </>
                                         </CardFooter>
                                     </Card>
-                                    <h2>{player}</h2>
-                                    <h2>Id: {analysisResult[player].player_id}</h2>
-                                    <h3>Average Label: {analysisResult[player].average_label}</h3>
-                                    <h3>Mode Label: {analysisResult[player].most_frequent_label}</h3>
-                                    <img src={`https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${analysisResult[player].player_id}.png`}></img>
                                 </div>
                             ))
                         }
