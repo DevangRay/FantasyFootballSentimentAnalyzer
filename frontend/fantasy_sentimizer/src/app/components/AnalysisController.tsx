@@ -29,12 +29,20 @@ interface DetailedSentiment {
     best_label: string;
 }
 
+const MatchingStatus = {
+  perfect: "perfect match",
+  imperfect: "best of multiple matches",
+} as const;
+
+type MatchingStatus =
+  typeof MatchingStatus[keyof typeof MatchingStatus];
+
 interface PlayerSentiment {
     sentiment_consensus: SentimentScores;
     average_label: string;
     most_frequent_label: string;
     detailed_sentiment: DetailedSentiment[];
-    status: string;
+    status: MatchingStatus;
     transcript_name: string;
     player_id: string;
 }
@@ -48,7 +56,7 @@ export default function AnalysisController({ submittedText }: { submittedText: s
     const [analysisResult, setAnalysisResult] = useState<SentimentObject>({});
     const [sortedPlayers, setSortedPlayers] = useState<string[]>([]);
 
-    function getSortedKeys(obj: SentimentObject, order = 'desc') {
+    function sortPlayersByMentions(obj: SentimentObject, order = 'desc') {
         return Object.keys(obj)
             .sort((a, b) => {
                 const lengthA = obj[a]["detailed_sentiment"]?.length || 0;
@@ -57,8 +65,24 @@ export default function AnalysisController({ submittedText }: { submittedText: s
             });
     }
 
+    function sortPlayersByStatusAndMentions(obj: SentimentObject) {
+        return Object.keys(obj)
+            .sort((a, b) => {
+                const statusOrder = {
+                    "perfect match": 0,
+                    "best of multiple matches": 1
+                }
+
+                const statusDiff = statusOrder[obj[a].status] - statusOrder[obj[b].status]
+                if (statusDiff !== 0) return statusDiff;
+
+                return obj[b].detailed_sentiment.length - obj[a].detailed_sentiment.length;
+            })
+
+    }
+
     function mockCallAPI() {
-        const results = {
+        const results: SentimentObject = {
             "Aaron Adeoye": {
                 "average_label": "neutral",
                 "detailed_sentiment": [
@@ -3346,8 +3370,10 @@ export default function AnalysisController({ submittedText }: { submittedText: s
                 "transcript_name": "Zack"
             }
         }
-        const playersSortedByMentions = getSortedKeys(results)
-        setSortedPlayers(playersSortedByMentions);
+        // const sortedPlayers = sortPlayersByMentions(results)
+        const sortedPlayers = sortPlayersByStatusAndMentions(results);
+
+        setSortedPlayers(sortedPlayers)
         setAnalysisResult(results)
     }
 
@@ -8032,6 +8058,15 @@ export default function AnalysisController({ submittedText }: { submittedText: s
         console.dir(analysis_result)
     }
 
+    function renderConfidence(matchingStatus: MatchingStatus, originalName: string) {
+        if (matchingStatus === MatchingStatus.perfect) {
+            return <span className="text-green-500 font-bold">Perfect Match</span>
+        }
+        else if (matchingStatus === MatchingStatus.imperfect) {
+            return <span className="text-yellow-500 font-bold">Partial Match (Original Name: {originalName})</span>
+        }
+    }
+
     return (
         <>
             <div className="flex flex-col items-center min-w-screen">
@@ -8050,7 +8085,12 @@ export default function AnalysisController({ submittedText }: { submittedText: s
                                 <div key={index}>
                                     <Card>
                                         <CardHeader>
-                                            <CardTitle>{player}</CardTitle>
+                                            <CardTitle>
+                                                <div className="flex flex-row">
+                                                    <span className="text-2xl font-bold">{player}</span>
+                                                    <span>{renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)}</span>
+                                                </div>
+                                            </CardTitle>
                                             <CardDescription>Player Matching: {analysisResult[player].status} | Original Name: {analysisResult[player].transcript_name}</CardDescription>
                                             <CardAction>See more details</CardAction>
                                         </CardHeader>

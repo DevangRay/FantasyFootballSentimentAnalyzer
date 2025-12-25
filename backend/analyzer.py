@@ -101,7 +101,8 @@ def match_players_to_roster(identified_names: list[dict]) -> dict:
                     "status": status,
                     "sentence_index": player_object['sentence_index'],
                     "sentence": player_object['sentence'],
-                    "original sentence": original_sentence
+                    "original sentence": original_sentence,
+                    "player_team": nfl_player_roster[final_name]['team'],
                 })
                 final_player_object[final_name]['mentioned_sentence_indexes'].add(player_object['sentence_index'])
             else:
@@ -114,7 +115,8 @@ def match_players_to_roster(identified_names: list[dict]) -> dict:
                         "status": status,
                         "sentence_index": player_object['sentence_index'],
                         "sentence": player_object['sentence'],
-                        "original sentence": original_sentence
+                        "original sentence": original_sentence,
+                        "player_team": nfl_player_roster[final_name]['team'],
                     }],
                     'mentioned_sentence_indexes': set([player_object['sentence_index']])
                 }
