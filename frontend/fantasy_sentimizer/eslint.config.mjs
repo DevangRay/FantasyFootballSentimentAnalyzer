@@ -1,22 +1,19 @@
-import { defineConfig, globalIgnores } from 'eslint/config'
-import nextVitals from 'eslint-config-next/core-web-vitals.js'
- 
-const eslintConfig = defineConfig([
-  nextVitals,
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import { FlatCompat } from "@eslint/eslintrc";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const compat = new FlatCompat({ baseDirectory: __dirname });
+
+export default [
+  ...compat.extends("next/core-web-vitals"),
   {
     rules: {
-      'react/no-unescaped-entities': 'off',
-      '@next/next/no-page-custom-font': 'off',
+      "react/no-unescaped-entities": "off",
+      "@next/next/no-page-custom-font": "off",
     },
+    ignores: [".next/**", "out/**", "build/**", "next-env.d.ts"],
   },
-  // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    '.next/**',
-    'out/**',
-    'build/**',
-    'next-env.d.ts',
-  ]),
-])
- 
-export default eslintConfig
+];
