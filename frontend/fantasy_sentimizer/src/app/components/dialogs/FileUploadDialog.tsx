@@ -82,7 +82,7 @@ export default function FileUploadDialog({ setSubmittedText }: { setSubmittedTex
                 <DialogHeader>
                     <DialogTitle>File Upload</DialogTitle>
                     <DialogDescription>
-                        Please upload a text file, and we'll handle the rest.
+                        Please upload a text file, and we will handle the rest.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="flex items-center gap-2">
