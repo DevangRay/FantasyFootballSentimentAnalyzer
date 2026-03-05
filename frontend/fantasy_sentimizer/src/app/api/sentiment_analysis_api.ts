@@ -1,7 +1,9 @@
+const API_BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+
 export async function getNFLPlayers(): Promise<any> {
     console.log("Here")
     console.log("Calling API")
-    const response = await fetch('http://localhost:5000/nfl/athletes', {
+    const response = await fetch(`${API_BACKEND_BASE_URL}/nfl/athletes`, {
         method: 'GET'
     });
     console.log("Got response")
@@ -18,7 +20,7 @@ export async function getNFLPlayers(): Promise<any> {
 }
 
 export async function performAnalysis(text: string): Promise<any> {
-    const response = await fetch('http://localhost:5000/analyze', {
+    const response = await fetch(`${API_BACKEND_BASE_URL}/analyze`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -39,7 +41,7 @@ export async function performAnalysis(text: string): Promise<any> {
 }
 
 export async function getPlayerObjectForAnalysis(text: string): Promise<any> {
-    const response = await fetch('http://localhost:5000/analyze/setup', {
+    const response = await fetch(`${API_BACKEND_BASE_URL}/analyze/setup`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
