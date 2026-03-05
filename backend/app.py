@@ -86,7 +86,7 @@ def get_nfl_athletes():
             
         #     output_array.append(athlete_object)
         print("writing to nfl_roster.json")
-        with open('../resources/nfl_roster.json', 'w') as f:
+        with open('./resources/nfl_roster.json', 'w') as f:
             import json
             json.dump(output_array, f, ensure_ascii=False, indent=2)
         

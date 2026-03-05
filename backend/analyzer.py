@@ -61,7 +61,7 @@ def match_players_to_roster(identified_names: list[dict]) -> dict:
     # save list of real NFL players to nfl_player_roster
     # nfl.get_nfl_players()
     nfl_player_roster = {}
-    with open("../resources/nfl_roster.json", "r") as f:
+    with open("./resources/nfl_roster.json", "r") as f:
         nfl_player_roster = json.load(f)
         
     # nfl_player_names = [player['name'] for player in nfl_player_roster]
