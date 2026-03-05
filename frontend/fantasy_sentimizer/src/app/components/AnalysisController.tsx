@@ -30,12 +30,12 @@ interface DetailedSentiment {
 }
 
 const MatchingStatus = {
-  perfect: "perfect match",
-  imperfect: "best of multiple matches",
+    perfect: "perfect match",
+    imperfect: "best of multiple matches",
 } as const;
 
 type MatchingStatus =
-  typeof MatchingStatus[keyof typeof MatchingStatus];
+    typeof MatchingStatus[keyof typeof MatchingStatus];
 
 interface PlayerSentiment {
     sentiment_consensus: SentimentScores;
@@ -3378,14 +3378,24 @@ export default function AnalysisController({ submittedText }: { submittedText: s
     }
 
     async function callAPI() {
-        setLoading(true);
-        console.log("calling api")
-        // const response = await getNFLPlayers();
-        // const response = await getPlayerObjectForAnalysis(submittedText);
-        const response = await performAnalysis(submittedText);
-        console.log("response: ", response);
-        setAnalysisResult(response.data);
-        setLoading(false);
+        try {
+            setLoading(true);
+            console.log("calling api")
+            // const response = await getNFLPlayers();
+            // const response = await getPlayerObjectForAnalysis(submittedText);
+            const response = await performAnalysis(submittedText);
+            console.log("response: ", response);
+
+            const sortedPlayers = sortPlayersByStatusAndMentions(response)
+            console.log("sorted Players: ", sortedPlayers);
+
+            setAnalysisResult(response);
+            setSortedPlayers(sortedPlayers);
+            setLoading(false);
+        } catch (error) {
+            console.error("Error calling API: ", error);
+            setLoading(false);
+        }
     }
 
     async function analyze() {
@@ -8074,7 +8084,8 @@ export default function AnalysisController({ submittedText }: { submittedText: s
                 {
                     loading ?
                         <Button disabled><Spinner /> Loading...</Button>
-                        : <Button onClick={mockCallAPI}>Click me</Button>
+                        // : <Button onClick={mockCallAPI}>Click me</Button>
+                        : <Button onClick={callAPI}>Click me</Button>
                 }
                 {
                     analysisResult && sortedPlayers.length > 0 &&

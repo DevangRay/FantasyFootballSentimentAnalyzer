@@ -9283,10 +9283,6 @@
     "id": "4240596",
     "team": "Atlanta Falcons"
   },
-  "Jack Henderson": {
-    "id": "4696820",
-    "team": "Tampa Bay Buccaneers"
-  },
   "Nolan Henderson": {
     "id": "4248104",
     "team": "Baltimore Ravens"
@@ -15474,6 +15470,10 @@
   "Patrick Morris": {
     "id": "3040013",
     "team": "Tennessee Titans"
+  },
+  "Quintin Morris": {
+    "id": "4244049",
+    "team": "Jacksonville Jaguars"
   },
   "Wanya Morris": {
     "id": "4570577",
@@ -22118,6 +22118,10 @@
   "Jacob Tuioti-Mariner": {
     "id": "3134315",
     "team": "Carolina Panthers"
+  },
+  "Marlon Tuipulotu": {
+    "id": "4243218",
+    "team": "Kansas City Chiefs"
   },
   "Tuli Tuipulotu": {
     "id": "4431442",
