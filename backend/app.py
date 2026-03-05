@@ -6,7 +6,7 @@ import analyzer as sentiment_analyzer
 app = Flask(__name__)
 CORS(app, origins=[
     "http://localhost:3000",
-    "https://fantasy-football-sentiment-analyzer.vercel.app/"
+    "https://fantasy-football-sentiment-analyzer.vercel.app",
 ])
 
 @app.route("/")
