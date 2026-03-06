@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import {
     Card,
     CardAction,
@@ -14,6 +13,7 @@ import {
 import { getPlayerObjectForAnalysis, getNFLPlayers, performAnalysis } from "../api/sentiment_analysis_api";
 import { Spinner } from "@/components/ui/spinner";
 import { ImageWithFallback } from "./ImageWithBackup";
+import { Chart } from "../analyze/components/Chart";
 
 
 interface SentimentScores {
@@ -55,6 +55,11 @@ export default function AnalysisController({ submittedText }: { submittedText: s
     const [analysisResult, setAnalysisResult] = useState<SentimentObject>({});
     const [sortedPlayers, setSortedPlayers] = useState<string[]>([]);
 
+    useEffect(() => {
+        mockCallAPI();
+        // callAPI();
+    }, [])
+
     function sortPlayersByMentions(obj: SentimentObject, order = 'desc') {
         return Object.keys(obj)
             .sort((a, b) => {
@@ -81,6 +86,7 @@ export default function AnalysisController({ submittedText }: { submittedText: s
     }
 
     function mockCallAPI() {
+        setLoading(true);
         const results: SentimentObject = {
             "Aaron Adeoye": {
                 "average_label": "neutral",
@@ -3371,9 +3377,11 @@ export default function AnalysisController({ submittedText }: { submittedText: s
         }
         // const sortedPlayers = sortPlayersByMentions(results)
         const sortedPlayers = sortPlayersByStatusAndMentions(results);
+        console.dir(results[sortedPlayers[0]]);
 
         setSortedPlayers(sortedPlayers)
         setAnalysisResult(results)
+        setLoading(true);
     }
 
     async function callAPI() {
@@ -3410,14 +3418,14 @@ export default function AnalysisController({ submittedText }: { submittedText: s
         <>
             <div className="flex flex-col items-center min-w-screen">
                 {/* {submittedText} */}
-                {
+                {/* {
                     loading ?
                         <Button disabled><Spinner /> Loading...</Button>
                         // : <Button onClick={mockCallAPI}>Click me</Button>
                         : <Button onClick={callAPI}>Click me</Button>
-                }
+                } */}
                 {
-                    analysisResult && sortedPlayers.length > 0 &&
+                    loading &&
                     <>
                         <h2>Analysis Result</h2>
                         {
@@ -3434,21 +3442,25 @@ export default function AnalysisController({ submittedText }: { submittedText: s
                                             <CardDescription>Player Matching: {analysisResult[player].status} | Original Name: {analysisResult[player].transcript_name}</CardDescription>
                                             <CardAction>See more details</CardAction>
                                         </CardHeader>
-                                        <CardContent>
-                                            <ImageWithFallback src={`https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${analysisResult[player].player_id}.png`} alt={`${player}'s Profile Photo`} width={100} height={100} />
-                                            <>
-                                                <h3>Average Label: {analysisResult[player].average_label}</h3>
-                                                <h3>Mode Label: {analysisResult[player].most_frequent_label}</h3>
-                                            </>
+                                        <CardContent className="flex flex-row items-center justify-space-between gap-16">
+                                            <div>
+                                                <ImageWithFallback src={`https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${analysisResult[player].player_id}.png`} alt={`${player}'s Profile Photo`} width={100} height={100} />
+                                                <>
+                                                    <h3>Average Label: {analysisResult[player].average_label}</h3>
+                                                    <h3>Mode Label: {analysisResult[player].most_frequent_label}</h3>
+                                                </>
+                                            </div>
+                                            <Chart chartData={Object.entries(analysisResult[player].sentiment_consensus).map(([pole, value]) => ({ pole, value: (1 / Math.abs(value)) }))} />
+
                                         </CardContent>
-                                        <CardFooter>
+                                        {/* <CardFooter>
                                             <>
                                                 <h4>Ratings:</h4>
                                                 <h4>Negative {analysisResult[player].sentiment_consensus.negative}</h4>
                                                 <h4>Positive {analysisResult[player].sentiment_consensus.positive}</h4>
                                                 <h4>Neutral {analysisResult[player].sentiment_consensus.neutral}</h4>
                                             </>
-                                        </CardFooter>
+                                        </CardFooter> */}
                                     </Card>
                                 </div>
                             ))
