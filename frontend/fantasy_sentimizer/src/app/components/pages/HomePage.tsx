@@ -20,9 +20,7 @@ export default function HomePage() {
                         <FileUploadDialog setSubmittedText={setSubmittedText} />
                     </>
                     : <>
-                        <section className="flex-1 flex">
-                            <AnalysisController submittedText={submittedText} />
-                        </section>
+                        <AnalysisController submittedText={submittedText} />
                     </>
             }
         </>

@@ -3416,7 +3416,7 @@ export default function AnalysisController({ submittedText }: { submittedText: s
 
     return (
         <>
-            <div className="flex flex-col items-center min-w-screen">
+            <div className="flex flex-col items-center">
                 {/* {submittedText} */}
                 {/* {
                     loading ?
@@ -3442,7 +3442,7 @@ export default function AnalysisController({ submittedText }: { submittedText: s
                                             <CardDescription>Player Matching: {analysisResult[player].status} | Original Name: {analysisResult[player].transcript_name}</CardDescription>
                                             <CardAction>See more details</CardAction>
                                         </CardHeader>
-                                        <CardContent className="flex flex-row items-center justify-space-between gap-16">
+                                        <CardContent className="flex flex-row items-center justify-space-evenly">
                                             <div>
                                                 <ImageWithFallback src={`https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${analysisResult[player].player_id}.png`} alt={`${player}'s Profile Photo`} width={100} height={100} />
                                                 <>

@@ -39,7 +39,7 @@ export function Chart({ chartData }: { chartData: { pole: string, value: number 
     return (
         <ChartContainer
             config={chartConfig}
-            className="w-full min-h-[200px] max-h-[300px] [&_.recharts-wrapper]:overflow-visible"
+            className="w-full min-h-[20px] max-h-[300px] [&_.recharts-wrapper]:overflow-visible"
         >
             <RadarChart
                 data={chartData}
