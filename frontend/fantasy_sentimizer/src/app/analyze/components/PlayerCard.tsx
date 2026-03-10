@@ -7,6 +7,14 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
+
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 import { ImageWithFallback } from "@/app/components/ImageWithBackup";
 import { Chart } from "@/app/analyze/components/Chart";
 import { MatchingStatus, MatchingStatusConst } from "@/app/types/analyze-types";
@@ -40,12 +48,22 @@ export default function PlayerCard({ player, analysisResult }: { player: string,
             <Card>
                 <CardHeader>
                     <CardTitle>
-                        <div className="flex flex-row">
-                            <span className="text-2xl font-bold">{player}</span>
-                            <span>{renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)}</span>
-                        </div>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <span className="text-2xl font-bold cursor-default">{player}</span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>
+                                        {renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)} | Transcript Name: {analysisResult[player].transcript_name}
+                                    </p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
                     </CardTitle>
-                    <CardDescription>Player Matching: {analysisResult[player].status} | Original Name: {analysisResult[player].transcript_name}</CardDescription>
+
+                    {/* <span>{renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)}</span> */}
+                    {/* <CardDescription>Player Matching: {analysisResult[player].status} | Original Name: {analysisResult[player].transcript_name}</CardDescription> */}
                     <CardAction>See more details</CardAction>
                 </CardHeader>
 
