@@ -1,54 +1,9 @@
+"use client"
 import { useEffect, useState } from "react";
 
-import {
-    Card,
-    CardAction,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-
 import { getPlayerObjectForAnalysis, getNFLPlayers, performAnalysis } from "../api/sentiment_analysis_api";
-import { Spinner } from "@/components/ui/spinner";
-import { ImageWithFallback } from "./ImageWithBackup";
-import { Chart } from "../analyze/components/Chart";
-
-
-interface SentimentScores {
-    positive: number;
-    negative: number;
-    neutral: number;
-}
-
-interface DetailedSentiment {
-    text: string;
-    scores: SentimentScores;
-    best_label: string;
-}
-
-const MatchingStatus = {
-    perfect: "perfect match",
-    imperfect: "best of multiple matches",
-} as const;
-
-type MatchingStatus =
-    typeof MatchingStatus[keyof typeof MatchingStatus];
-
-interface PlayerSentiment {
-    sentiment_consensus: SentimentScores;
-    average_label: string;
-    most_frequent_label: string;
-    detailed_sentiment: DetailedSentiment[];
-    status: MatchingStatus;
-    transcript_name: string;
-    player_id: string;
-}
-
-interface SentimentObject {
-    [player: string]: PlayerSentiment
-}
+import PlayerCard from "../analyze/components/PlayerCard";
+import {SentimentObject} from "@/app/types/analyze-types";
 
 export default function AnalysisController({ submittedText }: { submittedText: string }) {
     const [loading, setLoading] = useState<boolean>(false);
@@ -3405,15 +3360,6 @@ export default function AnalysisController({ submittedText }: { submittedText: s
         }
     }
 
-    function renderConfidence(matchingStatus: MatchingStatus, originalName: string) {
-        if (matchingStatus === MatchingStatus.perfect) {
-            return <span className="text-green-500 font-bold">Perfect Match</span>
-        }
-        else if (matchingStatus === MatchingStatus.imperfect) {
-            return <span className="text-yellow-500 font-bold">Partial Match (Original Name: {originalName})</span>
-        }
-    }
-
     return (
         <>
             <div className="flex flex-col items-center">
@@ -3431,37 +3377,7 @@ export default function AnalysisController({ submittedText }: { submittedText: s
                         {
                             sortedPlayers.map((player, index) => (
                                 <div key={index}>
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle>
-                                                <div className="flex flex-row">
-                                                    <span className="text-2xl font-bold">{player}</span>
-                                                    <span>{renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)}</span>
-                                                </div>
-                                            </CardTitle>
-                                            <CardDescription>Player Matching: {analysisResult[player].status} | Original Name: {analysisResult[player].transcript_name}</CardDescription>
-                                            <CardAction>See more details</CardAction>
-                                        </CardHeader>
-                                        <CardContent className="flex flex-row items-center justify-space-evenly">
-                                            <div>
-                                                <ImageWithFallback src={`https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${analysisResult[player].player_id}.png`} alt={`${player}'s Profile Photo`} width={100} height={100} />
-                                                <>
-                                                    <h3>Average Label: {analysisResult[player].average_label}</h3>
-                                                    <h3>Mode Label: {analysisResult[player].most_frequent_label}</h3>
-                                                </>
-                                            </div>
-                                            <Chart chartData={Object.entries(analysisResult[player].sentiment_consensus).map(([pole, value]) => ({ pole, value: (1 / Math.abs(value)) }))} />
-
-                                        </CardContent>
-                                        {/* <CardFooter>
-                                            <>
-                                                <h4>Ratings:</h4>
-                                                <h4>Negative {analysisResult[player].sentiment_consensus.negative}</h4>
-                                                <h4>Positive {analysisResult[player].sentiment_consensus.positive}</h4>
-                                                <h4>Neutral {analysisResult[player].sentiment_consensus.neutral}</h4>
-                                            </>
-                                        </CardFooter> */}
-                                    </Card>
+                                    <PlayerCard player={player} analysisResult={analysisResult} />
                                 </div>
                             ))
                         }
