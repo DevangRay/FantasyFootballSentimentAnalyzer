@@ -14,6 +14,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { UserRoundCheck, UserRoundCog } from "lucide-react";
 
 import { ImageWithFallback } from "@/app/components/ImageWithBackup";
 import { Chart } from "@/app/analyze/components/Chart";
@@ -47,7 +48,7 @@ export default function PlayerCard({ player, analysisResult }: { player: string,
         <>
             <Card>
                 <CardHeader>
-                    <CardTitle>
+                    <CardTitle className="flex flex-row gap-4 items-center">
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -60,6 +61,16 @@ export default function PlayerCard({ player, analysisResult }: { player: string,
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
+
+                        {
+                            analysisResult[player].status === MatchingStatusConst.perfect
+                                ? <>
+                                    <UserRoundCheck className="text-green-500" />
+                                </>
+                                : <>
+                                    <UserRoundCog className="text-yellow-500" />
+                                </>
+                        }
                     </CardTitle>
 
                     {/* <span>{renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)}</span> */}
