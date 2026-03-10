@@ -8,12 +8,6 @@ import {
     type ChartConfig,
 } from "@/components/ui/chart"
 
-// const chartData: { pole: string, value: number }[] = [
-//     { "pole": "negative", "value": -3.435480362490604 },
-//     { "pole": "neutral", "value": -2.722602732871708 },
-//     { "pole": "positive", "value": -1.669828380016904 }
-// ]
-
 
 export function Chart({ chartData, chartColor }: { chartData: { pole: string; value: number; }[]; chartColor: string }) {
     const chartConfig = {
