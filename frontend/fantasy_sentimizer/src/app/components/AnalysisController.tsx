@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import { getPlayerObjectForAnalysis, getNFLPlayers, performAnalysis } from "../api/sentiment_analysis_api";
 import PlayerCard from "../analyze/components/PlayerCard";
-import {SentimentObject} from "@/app/types/analyze-types";
+import { SentimentObject } from "@/app/types/analyze-types";
 
 export default function AnalysisController({ submittedText }: { submittedText: string }) {
     const [loading, setLoading] = useState<boolean>(false);
@@ -3374,13 +3374,15 @@ export default function AnalysisController({ submittedText }: { submittedText: s
                     loading &&
                     <>
                         <h2>Analysis Result</h2>
-                        {
-                            sortedPlayers.map((player, index) => (
-                                <div key={index}>
-                                    <PlayerCard player={player} analysisResult={analysisResult} />
-                                </div>
-                            ))
-                        }
+                        <div className="flex flex-col gap-10">
+                            {
+                                sortedPlayers.map((player, index) => (
+                                    <div key={index} >
+                                        <PlayerCard player={player} analysisResult={analysisResult} />
+                                    </div>
+                                ))
+                            }
+                        </div>
                     </>
                 }
             </div>

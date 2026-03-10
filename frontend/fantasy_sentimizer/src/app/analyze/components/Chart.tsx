@@ -15,20 +15,7 @@ import {
 // ]
 
 
-export function Chart({ chartData }: { chartData: { pole: string, value: number }[] }) {
-    const colorMapping: Record<string, string> = {
-        "negative": "#ef4444",
-        "neutral": "#2563eb",
-        "positive": "#22c55e"
-    }
-
-    function getDominantColor(data: { pole: string, value: number }[]): string {
-        const dominantPole = data.reduce((prev, current) => current.value > prev.value ? current : prev);
-        return colorMapping[dominantPole.pole] || colorMapping["neutral"];
-    }
-
-    const chartColor: string = getDominantColor(chartData);
-
+export function Chart({ chartData, chartColor }: { chartData: { pole: string; value: number; }[]; chartColor: string }) {
     const chartConfig = {
         value: {
             label: "Score",
@@ -37,12 +24,21 @@ export function Chart({ chartData }: { chartData: { pole: string, value: number 
     } satisfies ChartConfig
 
     return (
+        // <ChartContainer
+        //     config={chartConfig}
+        //     className="w-[60%] min-h-[20px] max-h-[400px] [&_.recharts-wrapper]:overflow-visible"
+        // >
+        //     <RadarChart
+        //         data={chartData}
+        //         margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+        //     >
         <ChartContainer
             config={chartConfig}
-            className="w-full min-h-[20px] max-h-[300px] [&_.recharts-wrapper]:overflow-visible"
+            className="w-[60%] min-h-[20px] max-h-[300px] [&_.recharts-wrapper]:overflow-visible [&_.recharts-wrapper]:!w-full [&_.recharts-surface]:!w-full"
         >
             <RadarChart
                 data={chartData}
+                width={undefined}
                 margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
             >
                 <ChartTooltip

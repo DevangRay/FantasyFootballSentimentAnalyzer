@@ -22,6 +22,19 @@ export default function PlayerCard({ player, analysisResult }: { player: string,
         }
     }
 
+    function renderConsensus(average_label: string, mode_label: string): string {
+        return (average_label === mode_label ? average_label : "convoluted");
+    }
+
+    const consensusColorMap: Record<string, string> = {
+        "positive": "#22c55e",
+        "negative": "#ef4444",
+        "neutral": "#2563eb",
+        "convoluted": "#f2c04b"
+    }
+
+    const consensusColor: string = consensusColorMap[renderConsensus(analysisResult[player].average_label, analysisResult[player].most_frequent_label)] ?? '#60646b';
+
     return (
         <>
             <Card>
@@ -35,16 +48,51 @@ export default function PlayerCard({ player, analysisResult }: { player: string,
                     <CardDescription>Player Matching: {analysisResult[player].status} | Original Name: {analysisResult[player].transcript_name}</CardDescription>
                     <CardAction>See more details</CardAction>
                 </CardHeader>
-                <CardContent className="flex flex-row items-center justify-space-evenly">
-                    <div>
-                        <ImageWithFallback src={`https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${analysisResult[player].player_id}.png`} alt={`${player}'s Profile Photo`} width={100} height={100} />
-                        <>
-                            <h3>Average Label: {analysisResult[player].average_label}</h3>
-                            <h3>Mode Label: {analysisResult[player].most_frequent_label}</h3>
-                        </>
-                    </div>
-                    <Chart chartData={Object.entries(analysisResult[player].sentiment_consensus).map(([pole, value]) => ({ pole, value: (1 / Math.abs(value as number)) }))} />
 
+                <CardContent>
+                    <div className="flex flex-row gap-[5%] pl-[9%] w-full">
+                        <div className="w-[35%]">
+
+                            <div className="flex flex-col gap-2 items-center">
+                                <ImageWithFallback
+                                    src={`https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${analysisResult[player].player_id}.png`}
+                                    alt={`${player}'s Profile Photo`}
+                                    width={100}
+                                    height={100}
+                                />
+                                <div>
+                                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Critic Consensus</p>
+                                    <p
+                                        className="text-2xl font-bold capitalize"
+                                        style={{ color: consensusColor }}
+                                    >
+                                        {renderConsensus(analysisResult[player].average_label, analysisResult[player].most_frequent_label)}
+                                    </p>
+                                </div>
+                                <div className="flex flex-row gap-2">
+                                    <span className="px-2 py-0.5 rounded-full text-xs bg-muted text-muted-foreground">
+                                        Avg: <span
+                                            className="font-medium text-foreground capitalize"
+                                            style={{ color: consensusColorMap[analysisResult[player].average_label] }}
+                                        >{analysisResult[player].average_label}</span>
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded-full text-xs bg-muted text-muted-foreground">
+                                        Mode: <span
+                                            className="font-medium text-foreground capitalize"
+                                            style={{ color: consensusColorMap[analysisResult[player].most_frequent_label] }}
+                                        >{analysisResult[player].most_frequent_label}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <Chart
+                            chartData={Object.entries(analysisResult[player].sentiment_consensus).map(
+                                ([pole, value]) => ({ pole, value: (1 / Math.abs(value as number)) })
+                            )}
+                            chartColor={consensusColor}
+                        />
+                    </div>
                 </CardContent>
                 {/* <CardFooter>
                                             <>
