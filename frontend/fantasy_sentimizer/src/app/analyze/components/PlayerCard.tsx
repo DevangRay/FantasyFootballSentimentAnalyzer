@@ -86,8 +86,8 @@ export default function PlayerCard({ player, analysisResult }: { player: string,
                                 <ImageWithFallback
                                     src={`https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${analysisResult[player].player_id}.png`}
                                     alt={`${player}'s Profile Photo`}
-                                    width={100}
-                                    height={100}
+                                    width={200}
+                                    height={200}
                                 />
                                 <div>
                                     <p className="text-xs text-muted-foreground uppercase tracking-wide">Critic Consensus</p>
