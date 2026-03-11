@@ -1,19 +1,37 @@
 "use client"
 import { useEffect, useState } from "react";
 
-import { getPlayerObjectForAnalysis, getNFLPlayers, performAnalysis } from "../api/sentiment_analysis_api";
-import PlayerCard from "../analyze/components/PlayerCard";
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+
+import { getPlayerObjectForAnalysis, getNFLPlayers, performAnalysis } from "@/app/api/sentiment_analysis_api";
+import HighlightWord from "@/app/components/HighlightPlayer";
+import PlayerCard from "@/app/analyze/components/PlayerCard";
 import { SentimentObject } from "@/app/types/analyze-types";
+
+const labelColorMap: Record<string, { text: string; bg: string }> = {
+    positive: { text: "#22c55e", bg: "#dcfce7" },
+    negative: { text: "#ef4444", bg: "#fee2e2" },
+    neutral: { text: "#2563eb", bg: "#dbeafe" },
+}
 
 export default function AnalysisController({ submittedText }: { submittedText: string }) {
     const [loading, setLoading] = useState<boolean>(false);
     const [analysisResult, setAnalysisResult] = useState<SentimentObject>({});
     const [sortedPlayers, setSortedPlayers] = useState<string[]>([]);
+    const [showSidebar, setShowSidebar] = useState<boolean>(true);
+    const [openDrawerPlayer, setOpenDrawerPlayer] = useState<string | null>(null);
 
     useEffect(() => {
         mockCallAPI();
         // callAPI();
     }, [])
+
+    function onSwitchClick() {
+        setShowSidebar(!showSidebar);
+        setOpenDrawerPlayer(null);
+    }
 
     function sortPlayersByMentions(obj: SentimentObject, order = 'desc') {
         return Object.keys(obj)
@@ -3363,27 +3381,63 @@ export default function AnalysisController({ submittedText }: { submittedText: s
     return (
         <>
             <div className="flex flex-col items-center">
-                {/* {submittedText} */}
-                {/* {
-                    loading ?
-                        <Button disabled><Spinner /> Loading...</Button>
-                        // : <Button onClick={mockCallAPI}>Click me</Button>
-                        : <Button onClick={callAPI}>Click me</Button>
-                } */}
+                <div className="flex items-center space-x-2">
+                    <Label htmlFor="show-sidebar">
+                        {
+                            showSidebar ? "View Player Occurrences in Sidebar" : "View Player Occurrences as Carousel"
+                        }
+                    </Label>
+                    <Switch
+                        id="show-sidebar"
+                        checked={showSidebar}
+                        onClick={onSwitchClick}
+                    />
+                </div>
                 {
                     loading &&
-                    <>
-                        <h2>Analysis Result</h2>
-                        <div className="flex flex-col gap-10">
-                            {
-                                sortedPlayers.map((player, index) => (
-                                    <div key={index} className="w-[80vw] mx-auto">
-                                        <PlayerCard player={player} analysisResult={analysisResult} />
-                                    </div>
-                                ))
-                            }
+                    <div className="w-full flex flex-row items-start justify-between">
+                        <div className={`transition-all duration-300 ${openDrawerPlayer ? "w-[70vw]" : "w-[80vw] mx-auto"} flex flex-col gap-10 p-4`}>
+                            {sortedPlayers.map((player, index) => (
+                                <PlayerCard
+                                    key={index}
+                                    player={player}
+                                    analysisResult={analysisResult}
+                                    showSidebar={showSidebar}
+                                    onOpenDrawer={() => setOpenDrawerPlayer(player)}
+                                />
+                            ))}
                         </div>
-                    </>
+
+                        {openDrawerPlayer && (
+                            <div className="w-[25vw] sticky right-0 top-0 h-screen overflow-y-auto border-l bg-background shadow-xl flex flex-col transition-all duration-300 z-50">
+                                <div className="flex items-center justify-between px-4 py-3 border-b">
+                                    <h3 className="font-semibold text-sm">{openDrawerPlayer} — Occurrences</h3>
+                                    <button onClick={() => setOpenDrawerPlayer(null)} className="text-muted-foreground hover:text-foreground">✕</button>
+                                </div>
+                                <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
+                                    {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => {
+                                        const colors = labelColorMap[occurrence.best_label] ?? { text: "#60646b", bg: "#f3f4f6" };
+                                        return (
+                                            <Card key={index}>
+                                                <CardHeader className="flex flex-row items-center justify-between py-2 px-4 border-b">
+                                                    <span className="text-xs text-muted-foreground">Mention {index + 1}</span>
+                                                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
+                                                        style={{ color: colors.text, backgroundColor: colors.bg }}>
+                                                        {occurrence.best_label}
+                                                    </span>
+                                                </CardHeader>
+                                                <CardContent className="px-4 py-3">
+                                                    <p className="text-sm leading-relaxed">
+                                                        <HighlightWord text={occurrence.text} wordToBold={openDrawerPlayer} />
+                                                    </p>
+                                                </CardContent>
+                                            </Card>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 }
             </div>
         </>

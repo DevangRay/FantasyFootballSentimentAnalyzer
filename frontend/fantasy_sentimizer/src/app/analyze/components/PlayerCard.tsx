@@ -11,21 +11,21 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { UserRoundCheck, UserRoundCog } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AlignRight, UserRoundCheck, UserRoundCog } from "lucide-react";
 
 import { ImageWithFallback } from "@/app/components/ImageWithBackup";
 import { Chart } from "@/app/analyze/components/Chart";
 import { OccurrenceCarousel } from "@/app/analyze/components/OccurrenceCarousel";
 import { MatchingStatus, MatchingStatusConst } from "@/app/types/analyze-types";
 
-export default function PlayerCard({ player, analysisResult }: { player: string, analysisResult: Record<string, any> }) {
+export default function PlayerCard({ player, analysisResult, showSidebar, onOpenDrawer }: { player: string, analysisResult: Record<string, any>, showSidebar: boolean, onOpenDrawer?: () => void }) {
     const [isHovered, setIsHovered] = useState(false);
 
     function renderConfidence(matchingStatus: MatchingStatus, originalName: string) {
@@ -94,7 +94,13 @@ export default function PlayerCard({ player, analysisResult }: { player: string,
 
                     {/* <span>{renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)}</span> */}
                     {/* <CardDescription>Player Matching: {analysisResult[player].status} | Original Name: {analysisResult[player].transcript_name}</CardDescription> */}
-                    <CardAction>See more details</CardAction>
+                    {showSidebar && (
+                        <CardAction>
+                            <Button onClick={onOpenDrawer} variant="outline" size="sm">
+                                <AlignRight className="w-4 h-4 mr-1" /> Occurrences
+                            </Button>
+                        </CardAction>
+                    )}
                 </CardHeader>
 
                 <CardContent>
@@ -142,18 +148,22 @@ export default function PlayerCard({ player, analysisResult }: { player: string,
                         />
                     </div>
                 </CardContent>
-                <CardFooter className="flex flex-col">
-                    <OccurrenceCarousel
-                        occurrenceArray={analysisResult[player].detailed_sentiment}
-                        player={player}
-                    />
-                    {/* <>
+                {
+                    !showSidebar && (
+                        <CardFooter className="flex flex-col">
+                            <OccurrenceCarousel
+                                occurrenceArray={analysisResult[player].detailed_sentiment}
+                                player={player}
+                            />
+                            {/* <>
                         <h4>Ratings:</h4>
                         <h4>Negative {analysisResult[player].sentiment_consensus.negative}</h4>
                         <h4>Positive {analysisResult[player].sentiment_consensus.positive}</h4>
                         <h4>Neutral {analysisResult[player].sentiment_consensus.neutral}</h4>
                     </> */}
-                </CardFooter>
+                        </CardFooter>
+                    )
+                }
             </Card>
         </>
     )
