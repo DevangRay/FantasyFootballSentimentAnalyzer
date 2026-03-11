@@ -3377,7 +3377,7 @@ export default function AnalysisController({ submittedText }: { submittedText: s
                         <div className="flex flex-col gap-10">
                             {
                                 sortedPlayers.map((player, index) => (
-                                    <div key={index} >
+                                    <div key={index} className="w-[80vw] mx-auto">
                                         <PlayerCard player={player} analysisResult={analysisResult} />
                                     </div>
                                 ))

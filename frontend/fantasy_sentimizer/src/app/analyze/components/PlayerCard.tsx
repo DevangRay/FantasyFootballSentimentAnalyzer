@@ -22,6 +22,7 @@ import { UserRoundCheck, UserRoundCog } from "lucide-react";
 
 import { ImageWithFallback } from "@/app/components/ImageWithBackup";
 import { Chart } from "@/app/analyze/components/Chart";
+import { OccurrenceCarousel } from "@/app/analyze/components/OccurrenceCarousel";
 import { MatchingStatus, MatchingStatusConst } from "@/app/types/analyze-types";
 
 export default function PlayerCard({ player, analysisResult }: { player: string, analysisResult: Record<string, any> }) {
@@ -74,8 +75,8 @@ export default function PlayerCard({ player, analysisResult }: { player: string,
 
                             <div
                                 className={`transition-all duration-400 ease-out ${isHovered
-                                        ? "opacity-100 translate-x-0"
-                                        : "opacity-0 -translate-x-5 pointer-events-none"
+                                    ? "opacity-100 translate-x-0"
+                                    : "opacity-0 -translate-x-5 pointer-events-none"
                                     }`}
                             >
                                 {
@@ -141,14 +142,18 @@ export default function PlayerCard({ player, analysisResult }: { player: string,
                         />
                     </div>
                 </CardContent>
-                {/* <CardFooter>
-                                            <>
-                                                <h4>Ratings:</h4>
-                                                <h4>Negative {analysisResult[player].sentiment_consensus.negative}</h4>
-                                                <h4>Positive {analysisResult[player].sentiment_consensus.positive}</h4>
-                                                <h4>Neutral {analysisResult[player].sentiment_consensus.neutral}</h4>
-                                            </>
-                                        </CardFooter> */}
+                <CardFooter className="flex flex-col">
+                    <OccurrenceCarousel
+                        occurrenceArray={analysisResult[player].detailed_sentiment}
+                        player={player}
+                    />
+                    {/* <>
+                        <h4>Ratings:</h4>
+                        <h4>Negative {analysisResult[player].sentiment_consensus.negative}</h4>
+                        <h4>Positive {analysisResult[player].sentiment_consensus.positive}</h4>
+                        <h4>Neutral {analysisResult[player].sentiment_consensus.neutral}</h4>
+                    </> */}
+                </CardFooter>
             </Card>
         </>
     )
