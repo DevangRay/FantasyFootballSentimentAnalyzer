@@ -1,3 +1,7 @@
+"use client"
+
+import { useState } from "react"
+
 import {
     Card,
     CardAction,
@@ -21,6 +25,7 @@ import { Chart } from "@/app/analyze/components/Chart";
 import { MatchingStatus, MatchingStatusConst } from "@/app/types/analyze-types";
 
 export default function PlayerCard({ player, analysisResult }: { player: string, analysisResult: Record<string, any> }) {
+    const [isHovered, setIsHovered] = useState(false);
 
     function renderConfidence(matchingStatus: MatchingStatus, originalName: string) {
         if (matchingStatus === MatchingStatusConst.perfect) {
@@ -48,29 +53,42 @@ export default function PlayerCard({ player, analysisResult }: { player: string,
         <>
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex flex-row gap-4 items-center">
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <span className="text-2xl font-bold cursor-default">{player}</span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>
-                                        {renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)} | Transcript Name: {analysisResult[player].transcript_name}
-                                    </p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
+                    <CardTitle>
+                        <div
+                            className="flex flex-row items-center gap-4"
+                            onMouseEnter={() => setIsHovered(true)}
+                            onMouseLeave={() => setIsHovered(false)}
+                        >
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <span className="text-2xl font-bold cursor-default">{player}</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>
+                                            {renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)} | Transcript Name: {analysisResult[player].transcript_name}
+                                        </p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
 
-                        {
-                            analysisResult[player].status === MatchingStatusConst.perfect
-                                ? <>
-                                    <UserRoundCheck className="text-green-500" />
-                                </>
-                                : <>
-                                    <UserRoundCog className="text-yellow-500" />
-                                </>
-                        }
+                            <div
+                                className={`transition-all duration-400 ease-out ${isHovered
+                                        ? "opacity-100 translate-x-0"
+                                        : "opacity-0 -translate-x-5 pointer-events-none"
+                                    }`}
+                            >
+                                {
+                                    analysisResult[player].status === MatchingStatusConst.perfect
+                                        ? <>
+                                            <UserRoundCheck className="text-green-500" />
+                                        </>
+                                        : <>
+                                            <UserRoundCog className="text-yellow-500" />
+                                        </>
+                                }
+                            </div>
+                        </div>
                     </CardTitle>
 
                     {/* <span>{renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)}</span> */}
