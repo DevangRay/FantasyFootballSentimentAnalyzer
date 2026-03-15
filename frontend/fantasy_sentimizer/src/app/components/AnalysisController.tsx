@@ -1,11 +1,13 @@
 "use client"
 import { useEffect, useState } from "react";
 
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Progress } from "@/components/ui/progress";
 
-import { getPlayerObjectForAnalysis, getNFLPlayers, performAnalysis } from "@/app/api/sentiment_analysis_api";
+import { getPlayerObjectForAnalysis, getNFLPlayers, performAnalysis, performAnalysisStream } from "@/app/api/sentiment_analysis_api";
 import HighlightWord from "@/app/components/HighlightPlayer";
 import PlayerCard from "@/app/analyze/components/PlayerCard";
 import { SentimentObject } from "@/app/types/analyze-types";
@@ -18,14 +20,24 @@ const labelColorMap: Record<string, { text: string; bg: string }> = {
 
 export default function AnalysisController({ submittedText }: { submittedText: string }) {
     const [loading, setLoading] = useState<boolean>(false);
+    const [progress, setProgress] = useState<number>(0);
+    const [loadingMessage, setLoadingMessage] = useState<string>("Starting analysis...");
+    const [apiResult, setApiResult] = useState<SentimentObject>({});
     const [analysisResult, setAnalysisResult] = useState<SentimentObject>({});
     const [sortedPlayers, setSortedPlayers] = useState<string[]>([]);
     const [showSidebar, setShowSidebar] = useState<boolean>(true);
     const [openDrawerPlayer, setOpenDrawerPlayer] = useState<string | null>(null);
 
     useEffect(() => {
-        mockCallAPI();
+        const cancellationToken = { cancelled: false };
+
+        // mockCallAPI();
         // callAPI();
+        callAPIStream(cancellationToken);
+
+        return () => {
+            cancellationToken.cancelled = true;
+        }
     }, [])
 
     function onSwitchClick() {
@@ -3354,7 +3366,7 @@ export default function AnalysisController({ submittedText }: { submittedText: s
 
         setSortedPlayers(sortedPlayers)
         setAnalysisResult(results)
-        setLoading(true);
+        setLoading(false);
     }
 
     async function callAPI() {
@@ -3378,66 +3390,113 @@ export default function AnalysisController({ submittedText }: { submittedText: s
         }
     }
 
+    async function callAPIStream(cancellationToken: { cancelled: boolean }) {
+        try {
+            setLoading(true);
+            setProgress(0);
+            setLoadingMessage("Starting analysis...");
+
+            console.log("calling api stream")
+            await performAnalysisStream(
+                submittedText,
+                (progress, message) => {
+                    if (cancellationToken.cancelled) return;
+
+                    setProgress(progress);
+                    setLoadingMessage(message);
+                },
+                (result) => {
+                    if (cancellationToken.cancelled) return;
+
+                    console.log("streaming complete, moving to sorting");
+                    const sortedPlayers = sortPlayersByStatusAndMentions(result)
+                    console.log("sorted Players: ", sortedPlayers);
+
+                    setAnalysisResult(result);
+                    setSortedPlayers(sortedPlayers);
+                    setLoading(false);
+                }
+            );
+        } catch (error) {
+            console.error("Error calling API: ", error);
+            setLoading(false);
+        }
+    }
+
     return (
         <>
             <div className="flex flex-col items-center">
-                <div className="flex items-center space-x-2">
-                    <Label htmlFor="show-sidebar">
-                        {
-                            showSidebar ? "View Player Occurrences in Sidebar" : "View Player Occurrences as Carousel"
-                        }
-                    </Label>
-                    <Switch
-                        id="show-sidebar"
-                        checked={showSidebar}
-                        onClick={onSwitchClick}
-                    />
-                </div>
                 {
-                    loading &&
-                    <div className="w-full flex flex-row items-start justify-between">
-                        <div className={`transition-all duration-300 ${openDrawerPlayer ? "w-[70vw]" : "w-[80vw] mx-auto"} flex flex-col gap-10 p-4`}>
-                            {sortedPlayers.map((player, index) => (
-                                <PlayerCard
-                                    key={index}
-                                    player={player}
-                                    analysisResult={analysisResult}
-                                    showSidebar={showSidebar}
-                                    onOpenDrawer={() => setOpenDrawerPlayer(player)}
+                    !loading ?
+                        <>
+                            <div className="flex items-center space-x-2">
+                                <Label htmlFor="show-sidebar">
+                                    {
+                                        showSidebar ? "View Player Occurrences in Sidebar" : "View Player Occurrences as Carousel"
+                                    }
+                                </Label>
+                                <Switch
+                                    id="show-sidebar"
+                                    checked={showSidebar}
+                                    onClick={onSwitchClick}
                                 />
-                            ))}
-                        </div>
-
-                        {openDrawerPlayer && (
-                            <div className="w-[25vw] sticky right-0 top-0 h-screen overflow-y-auto border-l bg-background shadow-xl flex flex-col transition-all duration-300 z-50">
-                                <div className="flex items-center justify-between px-4 py-3 border-b">
-                                    <h3 className="font-semibold text-sm">{openDrawerPlayer} — Occurrences</h3>
-                                    <button onClick={() => setOpenDrawerPlayer(null)} className="text-muted-foreground hover:text-foreground">✕</button>
-                                </div>
-                                <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
-                                    {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => {
-                                        const colors = labelColorMap[occurrence.best_label] ?? { text: "#60646b", bg: "#f3f4f6" };
-                                        return (
-                                            <Card key={index}>
-                                                <CardHeader className="flex flex-row items-center justify-between py-2 px-4 border-b">
-                                                    <span className="text-xs text-muted-foreground">Mention {index + 1}</span>
-                                                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
-                                                        style={{ color: colors.text, backgroundColor: colors.bg }}>
-                                                        {occurrence.best_label}
-                                                    </span>
-                                                </CardHeader>
-                                                <CardContent className="px-4 py-3">
-                                                    <p className="text-sm leading-relaxed">
-                                                        <HighlightWord text={occurrence.text} wordToBold={openDrawerPlayer} />
-                                                    </p>
-                                                </CardContent>
-                                            </Card>
-                                        );
-                                    })}
-                                </div>
                             </div>
-                        )}
-                    </div>
+
+                            <div className="w-full flex flex-row items-start justify-between">
+                                <div className={`transition-all duration-300 ${openDrawerPlayer ? "w-[70vw]" : "w-[80vw] mx-auto"} flex flex-col gap-10 p-4`}>
+                                    {sortedPlayers.map((player, index) => (
+                                        <PlayerCard
+                                            key={index}
+                                            player={player}
+                                            analysisResult={analysisResult}
+                                            showSidebar={showSidebar}
+                                            onOpenDrawer={() => setOpenDrawerPlayer(player)}
+                                        />
+                                    ))}
+                                </div>
+
+                                {openDrawerPlayer && (
+                                    <div className="w-[25vw] sticky right-0 top-0 h-screen overflow-y-auto border-l bg-background shadow-xl flex flex-col transition-all duration-300 z-50">
+                                        <div className="flex items-center justify-between px-4 py-3 border-b">
+                                            <h3 className="font-semibold text-sm">{openDrawerPlayer} — Occurrences</h3>
+                                            <button onClick={() => setOpenDrawerPlayer(null)} className="text-muted-foreground hover:text-foreground">✕</button>
+                                        </div>
+                                        <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
+                                            {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => {
+                                                const colors = labelColorMap[occurrence.best_label] ?? { text: "#60646b", bg: "#f3f4f6" };
+                                                return (
+                                                    <Card key={index}>
+                                                        <CardHeader className="flex flex-row items-center justify-between py-2 px-4 border-b">
+                                                            <span className="text-xs text-muted-foreground">Mention {index + 1}</span>
+                                                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
+                                                                style={{ color: colors.text, backgroundColor: colors.bg }}>
+                                                                {occurrence.best_label}
+                                                            </span>
+                                                        </CardHeader>
+                                                        <CardContent className="px-4 py-3">
+                                                            <p className="text-sm leading-relaxed">
+                                                                <HighlightWord text={occurrence.text} wordToBold={openDrawerPlayer} />
+                                                            </p>
+                                                        </CardContent>
+                                                    </Card>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                        : <>
+                            <div className="w-full max-w-sm h-screen mt-[30%]">
+                                <Field className="w-full max-w-sm">
+                                    <FieldLabel htmlFor="progress-upload">
+                                        <span>{loadingMessage ? loadingMessage : "No loading message"}</span>
+                                        <span className="ml-auto">{progress ? ` (${progress}%)` : "0%"}</span>
+                                    </FieldLabel>
+                                    <Progress value={progress} id="progress-upload" />
+                                </Field>
+                            </div>
+                        </>
                 }
             </div>
         </>

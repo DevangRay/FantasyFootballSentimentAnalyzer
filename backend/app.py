@@ -1,7 +1,10 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response, stream_with_context
+import json
 from flask_cors import CORS
 import requests
+
 import analyzer as sentiment_analyzer
+import sentiment_analysis.nli_deberta_v3_base as nli
 
 app = Flask(__name__)
 CORS(app, origins=[
@@ -13,6 +16,7 @@ CORS(app, origins=[
 def hello_world():
     return "<p>Hello, World!</p>"
 
+# DEFAULT ANALYSIS ENDPOINT
 @app.route("/analyze", methods=['POST'])
 def analyze():
     print("analyze endpoint hit")
@@ -31,6 +35,45 @@ def analyze():
     
     return jsonify(response)
 
+# ENDPOINT WITH MESSAGES FOR PROGRESS BAR
+@app.route("/analyze_stream", methods=['POST'])
+def analyze_stream():
+    print("/analyze_stream endpoint hit")
+    print("transcript is: ")
+    data = request.get_json()
+    print(data)
+    
+    
+    transcript = data.get('transcript', None)
+    
+    if (not transcript):
+        return jsonify({"error": "No transcript provided"}), 469
+
+    def generate():
+        # Step 1
+        yield f"data: {json.dumps({'progress': 10, 'message': 'Processing transcript...'})}\n\n"
+        identified_names, raw_sentences = sentiment_analyzer.process_transcript(podcast_transcript_text=transcript)
+        print("Total Identified Names:", len(identified_names))
+
+        # Step 2
+        yield f"data: {json.dumps({'progress': 30, 'message': 'Matching players to NFL roster...'})}\n\n"
+        final_player_object = sentiment_analyzer.match_players_to_roster(identified_names)
+        print("Total Unique Players Mentioned:", len(final_player_object))
+
+        # Step 3
+        yield f"data: {json.dumps({'progress': 50, 'message': 'Running sentiment analysis...'})}\n\n"
+        player_sentiments = nli.analyze_sentiment(final_player_object, raw_sentences)
+        print("Total Players with Sentiment Analysis:", len(player_sentiments))
+        
+        # Step 4
+        yield f"data: {json.dumps({'progress': 80, 'message': 'Aggregating consensus scores...'})}\n\n"
+
+        # Done — send final payload
+        yield f"data: {json.dumps({'progress': 100, 'message': 'Complete', 'result': player_sentiments})}\n\n"
+
+    return Response(stream_with_context(generate()), mimetype='text/event-stream')
+
+# SETTING UP ANALYSIS (CHECK)
 @app.route("/analyze/setup", methods=['POST'])
 def analyzeSetup():
     print("analyze/setup endpoint hit")
@@ -47,11 +90,13 @@ def analyzeSetup():
     
     return jsonify(response)
 
+# STATIC EXAMPLE OF ANALYSIS
 @app.route("/analyze/example", methods=['GET'])
 def analyzeExample():
     results = sentiment_analyzer.main()
     return jsonify(results)
 
+# GET NFL ATHLETES 
 @app.route('/nfl/athletes', methods=['GET'])
 def get_nfl_athletes():
     print("in get_nfl_athletes")
@@ -95,6 +140,8 @@ def get_nfl_athletes():
     except requests.RequestException as e:
         return jsonify({'error': str(e)}), 500
     
+    
+# GET PHOTO OF SPECIFIC NFL PLAYER
 @app.route("/nfl/athlete/photo/<player_id>", methods=['GET'])
 def get_player_photo(player_id):
     # https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/15847.png

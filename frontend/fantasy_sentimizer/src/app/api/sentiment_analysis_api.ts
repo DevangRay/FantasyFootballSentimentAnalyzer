@@ -40,6 +40,62 @@ export async function performAnalysis(text: string): Promise<any> {
     return data;
 }
 
+export async function performAnalysisStream(
+    text: string,
+    onEventRecieved: (progress: number, message: string) => void,
+    onComplete: (result: any) => void
+): Promise<void> {
+    const response = await fetch(`${API_BACKEND_BASE_URL}/analyze_stream`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            transcript: text
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+        throw new Error('Failed to get reader from response body');
+    }
+    const decoder = new TextDecoder();
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+            console.log('Stream complete');
+            break;
+        }
+
+        const chunk = decoder.decode(value, { stream: true });
+        console.log("chunk: ", chunk);
+        for (const line of chunk.split('\n')) {
+            console.log("Received line: ", line);
+            if (!line.startsWith('data: ')) {
+                console.warn('Skipping non-data line: ', line);
+                continue;
+            }
+
+            const jsonData = JSON.parse(line.replace('data: ', ''));
+            console.log("Parsed JSON data: ", jsonData);
+
+            if (jsonData.progress === 100) {
+                console.log("Analysis complete, final result: ", jsonData.result);
+
+                onEventRecieved(jsonData.progress, jsonData.message);
+                onComplete(jsonData.result);
+            } else {
+                onEventRecieved(jsonData.progress, jsonData.message);
+            }
+        }
+    }
+}
+
 export async function getPlayerObjectForAnalysis(text: string): Promise<any> {
     const response = await fetch(`${API_BACKEND_BASE_URL}/analyze/setup`, {
         method: 'POST',
