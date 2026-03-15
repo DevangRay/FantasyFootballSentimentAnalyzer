@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Field, FieldLabel } from "@/components/ui/field";
 import { Progress } from "@/components/ui/progress";
 
 import { getPlayerObjectForAnalysis, getNFLPlayers, performAnalysis, performAnalysisStream } from "@/app/api/sentiment_analysis_api";
 import HighlightWord from "@/app/components/HighlightPlayer";
 import PlayerCard from "@/app/analyze/components/PlayerCard";
 import { SentimentObject } from "@/app/types/analyze-types";
+import { delay } from "@/app/utils/functions";
 
 const labelColorMap: Record<string, { text: string; bg: string }> = {
     positive: { text: "#22c55e", bg: "#dcfce7" },
@@ -3487,14 +3487,21 @@ export default function AnalysisController({ submittedText }: { submittedText: s
                             </div>
                         </>
                         : <>
-                            <div className="w-full max-w-sm h-screen mt-[30%]">
-                                <Field className="w-full max-w-sm">
-                                    <FieldLabel htmlFor="progress-upload">
-                                        <span>{loadingMessage ? loadingMessage : "No loading message"}</span>
-                                        <span className="ml-auto">{progress ? ` (${progress}%)` : "0%"}</span>
-                                    </FieldLabel>
-                                    <Progress value={progress} id="progress-upload" />
-                                </Field>
+                            <div className="w-full max-w-sm flex h-[80vh] flex-col justify-center">
+                                <div className="w-full max-w-sm flex flex-col py-4">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <div className="h-5 overflow-hidden relative" style={{ perspective: '300px' }}>
+                                            <span
+                                                key={loadingMessage}
+                                                className="text-xs text-muted-foreground block animate-message-in"
+                                            >
+                                                {loadingMessage ? loadingMessage : "No loading message"}
+                                            </span>
+                                        </div>
+                                        <span className="text-xs text-muted-foreground">{progress}%</span>
+                                    </div>
+                                    <Progress value={progress} />
+                                </div>
                             </div>
                         </>
                 }
