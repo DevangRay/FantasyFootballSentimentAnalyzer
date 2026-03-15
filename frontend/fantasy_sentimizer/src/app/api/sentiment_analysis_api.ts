@@ -1,3 +1,5 @@
+import { SentimentObject } from "@/app/types/analyze-types";
+
 const API_BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
 
 export async function getNFLPlayers(): Promise<any> {
@@ -43,7 +45,7 @@ export async function performAnalysis(text: string): Promise<any> {
 export async function performAnalysisStream(
     text: string,
     onEventRecieved: (progress: number, message: string) => void,
-    onComplete: (result: any) => void
+    onComplete: (result: SentimentObject) => void
 ): Promise<void> {
     const response = await fetch(`${API_BACKEND_BASE_URL}/analyze_stream`, {
         method: 'POST',
@@ -64,6 +66,7 @@ export async function performAnalysisStream(
         throw new Error('Failed to get reader from response body');
     }
     const decoder = new TextDecoder();
+    let buffer = '';
 
     while (true) {
         const { done, value } = await reader.read();
@@ -72,25 +75,32 @@ export async function performAnalysisStream(
             break;
         }
 
-        const chunk = decoder.decode(value, { stream: true });
-        console.log("chunk: ", chunk);
-        for (const line of chunk.split('\n')) {
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop() ?? '';
+
+        for (const part of parts) {
+            const line = part.trim();
             console.log("Received line: ", line);
             if (!line.startsWith('data: ')) {
                 console.warn('Skipping non-data line: ', line);
                 continue;
             }
 
-            const jsonData = JSON.parse(line.replace('data: ', ''));
-            console.log("Parsed JSON data: ", jsonData);
-
-            if (jsonData.progress === 100) {
-                console.log("Analysis complete, final result: ", jsonData.result);
-
-                onEventRecieved(jsonData.progress, jsonData.message);
-                onComplete(jsonData.result);
-            } else {
-                onEventRecieved(jsonData.progress, jsonData.message);
+            try {
+                const jsonData = JSON.parse(line.replace('data: ', ''));
+                console.log("Parsed JSON data: ", jsonData);
+    
+                if (jsonData.progress === 100) {
+                    console.log("Analysis complete, final result: ", jsonData.result);
+    
+                    onEventRecieved(jsonData.progress, jsonData.message);
+                    onComplete(jsonData.result);
+                } else {
+                    onEventRecieved(jsonData.progress, jsonData.message);
+                }
+            } catch (error) {
+                console.error("Failed to parse SSE message: ", line, error);
             }
         }
     }
