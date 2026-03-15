@@ -133,6 +133,6 @@
 }
 
 .animate-message-in {
-    animation: message-in 0.6s ease-out forwards;
+    animation: message-in 1s ease-out forwards;
     transform-origin: bottom center;
 }
