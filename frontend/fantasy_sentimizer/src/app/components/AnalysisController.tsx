@@ -22,7 +22,6 @@ export default function AnalysisController({ submittedText }: { submittedText: s
     const [loading, setLoading] = useState<boolean>(false);
     const [progress, setProgress] = useState<number>(0);
     const [loadingMessage, setLoadingMessage] = useState<string>("Starting analysis...");
-    const [apiResult, setApiResult] = useState<SentimentObject>({});
     const [analysisResult, setAnalysisResult] = useState<SentimentObject>({});
     const [sortedPlayers, setSortedPlayers] = useState<string[]>([]);
     const [showSidebar, setShowSidebar] = useState<boolean>(true);
@@ -3417,9 +3416,6 @@ export default function AnalysisController({ submittedText }: { submittedText: s
                 }
             );
 
-            console.log("waiting 3 seconds");
-            await delay(3000);
-            console.log("finished waiting 3 seconds");
             setLoading(false);
         } catch (error) {
             console.error("Error calling API: ", error);
