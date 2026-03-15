@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, Response, stream_with_context
 import json
+import time
 from flask_cors import CORS
 import requests
 
@@ -56,7 +57,7 @@ def analyze_stream():
         print("Total Identified Names:", len(identified_names))
 
         # Step 2
-        yield f"data: {json.dumps({'progress': 30, 'message': 'Matching players to NFL roster...'})}\n\n"
+        yield f"data: {json.dumps({'progress': 25, 'message': 'Identifying NFL players...'})}\n\n"
         final_player_object = sentiment_analyzer.match_players_to_roster(identified_names)
         print("Total Unique Players Mentioned:", len(final_player_object))
 
@@ -66,9 +67,13 @@ def analyze_stream():
         print("Total Players with Sentiment Analysis:", len(player_sentiments))
         
         # Step 4
-        yield f"data: {json.dumps({'progress': 80, 'message': 'Aggregating consensus scores...'})}\n\n"
-
+        yield f"data: {json.dumps({'progress': 90, 'message': 'Aggregating consensus scores...'})}\n\n"
+        print("Starting delay...")
+        time.sleep(2)
+        print("Delay completed after 2 seconds.")
+        
         # Done — send final payload
+        print("Sending final results...")
         yield f"data: {json.dumps({'progress': 100, 'message': 'Complete', 'result': player_sentiments})}\n\n"
 
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
