@@ -3414,9 +3414,13 @@ export default function AnalysisController({ submittedText }: { submittedText: s
 
                     setAnalysisResult(result);
                     setSortedPlayers(sortedPlayers);
-                    setLoading(false);
                 }
             );
+
+            console.log("waiting 3 seconds");
+            await delay(3000);
+            console.log("finished waiting 3 seconds");
+            setLoading(false);
         } catch (error) {
             console.error("Error calling API: ", error);
             setLoading(false);
