@@ -107,12 +107,17 @@ export default function PlayerCard({ player, analysisResult, showSidebar, onOpen
                         <div className="w-[35%]">
 
                             <div className="flex flex-col gap-2 items-center">
-                                <ImageWithFallback
-                                    src={`https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${analysisResult[player].player_id}.png`}
-                                    alt={`${player}'s Profile Photo`}
-                                    width={200}
-                                    height={200}
-                                />
+                                <div className="relative w-[200px] h-[200px]">
+                                    <ImageWithFallback
+                                        src={`https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${analysisResult[player].player_id}.png`}
+                                        alt={`${player}'s Profile Photo`}
+                                        // width={200}
+                                        // height={200}
+                                        fill
+                                        sizes="200px"
+                                        style={{ objectFit: 'contain' }}
+                                    />
+                                </div>
                                 <div>
                                     <p className="text-xs text-muted-foreground uppercase tracking-wide">Critic Consensus</p>
                                     <p

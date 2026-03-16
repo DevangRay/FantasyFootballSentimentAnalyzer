@@ -3,6 +3,7 @@
 // components/ImageWithFallback.tsx
 import { useState } from 'react';
 import Image from 'next/image';
+import { CSSProperties } from 'react';
 
 interface ImageWithFallbackProps {
     src: string;
@@ -12,6 +13,8 @@ interface ImageWithFallbackProps {
     className?: string;
     fill?: boolean;
     priority?: boolean;
+    sizes?: string;
+    style?: CSSProperties;
 }
 
 export function ImageWithFallback({
@@ -21,7 +24,9 @@ export function ImageWithFallback({
     height,
     className = '',
     fill = false,
-    priority = false
+    priority = false,
+    sizes = '',
+    style = undefined
 }: ImageWithFallbackProps) {
     const [imgSrc, setImgSrc] = useState<string>(src);
     const [isError, setIsError] = useState<boolean>(false);
@@ -43,6 +48,8 @@ export function ImageWithFallback({
             className={className}
             onError={handleError}
             priority={priority}
+            sizes={sizes}
+            style={style}
         />
     );
 }
