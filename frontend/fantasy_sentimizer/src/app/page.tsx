@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import HomePage from "./components/pages/HomePage";
+import HomePage from "@/app/components/pages/HomePage";
 
 export default function Home() {
   return (

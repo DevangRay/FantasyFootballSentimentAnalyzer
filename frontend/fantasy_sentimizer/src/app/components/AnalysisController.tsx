@@ -10,7 +10,6 @@ import { getPlayerObjectForAnalysis, getNFLPlayers, performAnalysis, performAnal
 import HighlightWord from "@/app/components/HighlightPlayer";
 import PlayerCard from "@/app/analyze/components/PlayerCard";
 import { SentimentObject } from "@/app/types/analyze-types";
-import { delay } from "@/app/utils/functions";
 
 const labelColorMap: Record<string, { text: string; bg: string }> = {
     positive: { text: "#22c55e", bg: "#dcfce7" },

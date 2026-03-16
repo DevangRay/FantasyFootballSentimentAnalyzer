@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/shadcn-io/dropzone';
 import { Spinner } from "@/components/ui/spinner"
 
-import FileUploadButton from "../FileUploadButton"
+import FileUploadButton from "@/app/components/FileUploadButton"
 
 import { useState } from "react"
 

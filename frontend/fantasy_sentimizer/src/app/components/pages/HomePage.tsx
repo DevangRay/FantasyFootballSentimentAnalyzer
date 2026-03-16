@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react"
 
-import TextUpload from "../TextUpload";
-import FileUploadDialog from "../dialogs/FileUploadDialog";
-import AnalysisController from "../AnalysisController";
+import TextUpload from "@/app/components/TextUpload";
+import FileUploadDialog from "@/app/components/dialogs/FileUploadDialog";
+import AnalysisController from "@/app/components/AnalysisController";
+import { Button } from "@/components/ui/button";
 
 export default function HomePage() {
     const [submittedText, setSubmittedText] = useState<string | null>(null);
