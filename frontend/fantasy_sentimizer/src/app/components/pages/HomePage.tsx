@@ -9,7 +9,7 @@ export default function HomePage() {
     const [submittedText, setSubmittedText] = useState<string | null>(null);
 
     return (
-        <>
+        <div className="flex-1 flex flex-col min-h-0">
             {
                 !submittedText ?
                     <>
@@ -23,6 +23,6 @@ export default function HomePage() {
                         <AnalysisController submittedText={submittedText} />
                     </>
             }
-        </>
+        </div>
     )
 }

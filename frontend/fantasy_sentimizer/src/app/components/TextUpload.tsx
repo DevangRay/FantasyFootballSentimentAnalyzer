@@ -24,7 +24,7 @@ export default function TextUpload({ setSubmittedText }: { setSubmittedText: (te
     }
 
     return (
-        <>
+        <div className="flex-1 flex flex-col min-h-0">
             <Button
                 onClick={handleSubmit}
                 size="lg"
@@ -50,7 +50,7 @@ export default function TextUpload({ setSubmittedText }: { setSubmittedText: (te
             </Button>
 
             {/* Text Area */}
-            <section className="flex-1 flex">
+            <section className="flex-1 flex min-h-0">
                 <textarea
                     autoFocus
                     id="transcript-field"
@@ -60,6 +60,6 @@ export default function TextUpload({ setSubmittedText }: { setSubmittedText: (te
                     placeholder="You can copy in the transcript here..."
                 />
             </section>
-        </>
+        </div>
     )
 }
