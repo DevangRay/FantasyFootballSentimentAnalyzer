@@ -14,37 +14,54 @@ import * as React from "react";
 const UploadButton = React.forwardRef<
     HTMLButtonElement,
     React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ className, ...props }, ref) => {
-    return (
-        <Button ref={ref} {...props} className={className} variant="outline" size="sm">
-            Upload Files
-        </Button>
-    );
-}
+>(({ className, ...props }, ref) => 
+    {
+        return (
+            <Button ref={ref} {...props} className={className} variant="outline" size="sm">
+                Upload Files
+            </Button>
+        );
+    }
 );
 
 UploadButton.displayName = "UploadButton";
 
-export default function EmptyState({ setSubmittedText }: { setSubmittedText: React.Dispatch<React.SetStateAction<string | null>>}) {
+export default function EmptyState({ error, setSubmittedText }: { error: string | null, setSubmittedText: React.Dispatch<React.SetStateAction<string | null>> }) {
     return (
-        <Empty className="border border-dashed">
+        <Empty className="h-full">
             <EmptyHeader>
                 <EmptyMedia variant="icon">
-                    {/* <IconCloud /> */}
                     <Sprout />
                 </EmptyMedia>
-                <EmptyTitle>No results found</EmptyTitle>
+                <EmptyTitle>
+                    {
+                        error ? "Error" : "No Players Found"
+                    }
+                </EmptyTitle>
                 <EmptyDescription className="flex flex-col gap-2">
+                    {error ? (
+                        <span>
+                            {error}
+                        </span>
+                    ) : (
+                        <>
+                            <span>
+                                No NFL players were identified in the submitted transcript.
+                            </span>
+                        </>
+                    )}
                     <span>
-                        No NFL players were identified in the submitted transcript.
-                    </span>
-                    <span>
-                        Try uploading a different transcript or check out the demo transcript to see an example of the expected format.
+                        Try uploading a different transcript, or returning Home to see the Demo or submit new text.
                     </span>
                 </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
                 <FileUploadDialog setSubmittedText={setSubmittedText} DialogButton={UploadButton} />
+                <Button>
+                    <a href="/" className="text-white-700 hover:text-white-900">
+                        Home
+                    </a>
+                </Button>
             </EmptyContent>
         </Empty>
     )

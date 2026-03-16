@@ -23,6 +23,7 @@ export default function AnalysisController({ submittedText, setSubmittedText }: 
     const [progress, setProgress] = useState<number>(0);
     const [loadingMessage, setLoadingMessage] = useState<string>("Starting analysis...");
     const [analysisResult, setAnalysisResult] = useState<SentimentObject>({});
+    const [error, setError] = useState<string | null>(null);
     const [sortedPlayers, setSortedPlayers] = useState<string[]>([]);
     const [showSidebar, setShowSidebar] = useState<boolean>(true);
     const [openDrawerPlayer, setOpenDrawerPlayer] = useState<string | null>(null);
@@ -3384,6 +3385,7 @@ export default function AnalysisController({ submittedText, setSubmittedText }: 
             setSortedPlayers(sortedPlayers);
             setLoading(false);
         } catch (error) {
+            setError(error instanceof Error ? error.message : "Unknown error");
             console.error("Error calling API: ", error);
             setLoading(false);
         }
@@ -3418,103 +3420,103 @@ export default function AnalysisController({ submittedText, setSubmittedText }: 
 
             setLoading(false);
         } catch (error) {
+            setError(error instanceof Error ? error.message : "Unknown error");
             console.error("Error calling API: ", error);
             setLoading(false);
         }
     }
 
     return (
-        <>
-            <div className="flex flex-col mt-4 items-center">
-                {
-                    !loading ?
-                        <>
-                            {
-                                sortedPlayers.length > 0 ?
-                                    <>
-                                        <div className="flex items-center space-x-2">
-                                            <Label htmlFor="show-sidebar">
-                                                {
-                                                    showSidebar ? "View Player Occurrences in Sidebar" : "View Player Occurrences as Carousel"
-                                                }
-                                            </Label>
-                                            <Switch
-                                                id="show-sidebar"
-                                                checked={showSidebar}
-                                                onClick={onSwitchClick}
-                                            />
-                                        </div>
-
-                                        <div className="w-full flex flex-row items-start justify-between">
-                                            <div className={`transition-all duration-300 ${openDrawerPlayer ? "w-[70vw]" : "w-[80vw] mx-auto"} flex flex-col gap-10 p-4`}>
-                                                {sortedPlayers.map((player, index) => (
-                                                    <PlayerCard
-                                                        key={index}
-                                                        player={player}
-                                                        analysisResult={analysisResult}
-                                                        showSidebar={showSidebar}
-                                                        onOpenDrawer={() => setOpenDrawerPlayer(player)}
-                                                    />
-                                                ))}
-                                            </div>
-
-                                            {openDrawerPlayer && (
-                                                <div className="w-[25vw] sticky right-0 top-0 h-screen overflow-y-auto border-l bg-background shadow-xl flex flex-col transition-all duration-300 z-50">
-                                                    <div className="flex items-center justify-between px-4 py-3 border-b">
-                                                        <h3 className="font-semibold text-sm">{openDrawerPlayer} — Occurrences</h3>
-                                                        <button onClick={() => setOpenDrawerPlayer(null)} className="text-muted-foreground hover:text-foreground">✕</button>
-                                                    </div>
-                                                    <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
-                                                        {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => {
-                                                            const colors = labelColorMap[occurrence.best_label] ?? { text: "#60646b", bg: "#f3f4f6" };
-                                                            return (
-                                                                <Card key={index}>
-                                                                    <CardHeader className="flex flex-row items-center justify-between py-2 px-4 border-b">
-                                                                        <span className="text-xs text-muted-foreground">Mention {index + 1}</span>
-                                                                        <span className="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
-                                                                            style={{ color: colors.text, backgroundColor: colors.bg }}>
-                                                                            {occurrence.best_label}
-                                                                        </span>
-                                                                    </CardHeader>
-                                                                    <CardContent className="px-4 py-3">
-                                                                        <p className="text-sm leading-relaxed">
-                                                                            <HighlightWord text={occurrence.text} wordToBold={openDrawerPlayer} />
-                                                                        </p>
-                                                                    </CardContent>
-                                                                </Card>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </>
-                                    : <>
-                                        No results
-                                        <EmptyState setSubmittedText={setSubmittedText} />
-                                    </>
-                            }
-                        </>
-                        : <>
-                            <div className="w-full max-w-sm flex h-[80vh] flex-col justify-center">
-                                <div className="w-full max-w-sm flex flex-col py-4">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <div className="h-5 overflow-hidden relative" style={{ perspective: '300px' }}>
-                                            <span
-                                                key={loadingMessage}
-                                                className="text-xs text-muted-foreground block animate-message-in"
-                                            >
-                                                {loadingMessage ? loadingMessage : "No loading message"}
-                                            </span>
-                                        </div>
-                                        <span className="text-xs text-muted-foreground">{progress}%</span>
+        <div className="flex-1 flex flex-col min-h-0 mt-4 items-center">
+            {
+                !loading ?
+                    <>
+                        {
+                            sortedPlayers.length > 0 && error == null ?
+                                <>
+                                    <div className="flex items-center space-x-2">
+                                        <Label htmlFor="show-sidebar">
+                                            {
+                                                showSidebar ? "View Player Occurrences in Sidebar" : "View Player Occurrences as Carousel"
+                                            }
+                                        </Label>
+                                        <Switch
+                                            id="show-sidebar"
+                                            checked={showSidebar}
+                                            onClick={onSwitchClick}
+                                        />
                                     </div>
-                                    <Progress value={progress} />
+
+                                    <div className="w-full flex flex-row items-start justify-between">
+                                        <div className={`transition-all duration-300 ${openDrawerPlayer ? "w-[70vw]" : "w-[80vw] mx-auto"} flex flex-col gap-10 p-4`}>
+                                            {sortedPlayers.map((player, index) => (
+                                                <PlayerCard
+                                                    key={index}
+                                                    player={player}
+                                                    analysisResult={analysisResult}
+                                                    showSidebar={showSidebar}
+                                                    onOpenDrawer={() => setOpenDrawerPlayer(player)}
+                                                />
+                                            ))}
+                                        </div>
+
+                                        {openDrawerPlayer && (
+                                            <div className="w-[25vw] sticky right-0 top-0 h-screen overflow-y-auto border-l bg-background shadow-xl flex flex-col transition-all duration-300 z-50">
+                                                <div className="flex items-center justify-between px-4 py-3 border-b">
+                                                    <h3 className="font-semibold text-sm">{openDrawerPlayer} — Occurrences</h3>
+                                                    <button onClick={() => setOpenDrawerPlayer(null)} className="text-muted-foreground hover:text-foreground">✕</button>
+                                                </div>
+                                                <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
+                                                    {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => {
+                                                        const colors = labelColorMap[occurrence.best_label] ?? { text: "#60646b", bg: "#f3f4f6" };
+                                                        return (
+                                                            <Card key={index}>
+                                                                <CardHeader className="flex flex-row items-center justify-between py-2 px-4 border-b">
+                                                                    <span className="text-xs text-muted-foreground">Mention {index + 1}</span>
+                                                                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
+                                                                        style={{ color: colors.text, backgroundColor: colors.bg }}>
+                                                                        {occurrence.best_label}
+                                                                    </span>
+                                                                </CardHeader>
+                                                                <CardContent className="px-4 py-3">
+                                                                    <p className="text-sm leading-relaxed">
+                                                                        <HighlightWord text={occurrence.text} wordToBold={openDrawerPlayer} />
+                                                                    </p>
+                                                                </CardContent>
+                                                            </Card>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                                : <>
+                                    <div className="flex-1 flex items-center justify-center">
+                                        <EmptyState error={error} setSubmittedText={setSubmittedText} />
+                                    </div>
+                                </>
+                        }
+                    </>
+                    : <>
+                        <div className="w-full max-w-sm flex h-[80vh] flex-col justify-center">
+                            <div className="w-full max-w-sm flex flex-col py-4">
+                                <div className="flex justify-between items-center mb-1">
+                                    <div className="h-5 overflow-hidden relative" style={{ perspective: '300px' }}>
+                                        <span
+                                            key={loadingMessage}
+                                            className="text-xs text-muted-foreground block animate-message-in"
+                                        >
+                                            {loadingMessage ? loadingMessage : "No loading message"}
+                                        </span>
+                                    </div>
+                                    <span className="text-xs text-muted-foreground">{progress}%</span>
                                 </div>
+                                <Progress value={progress} />
                             </div>
-                        </>
-                }
-            </div>
-        </>
+                        </div>
+                    </>
+            }
+        </div>
     )
 }
