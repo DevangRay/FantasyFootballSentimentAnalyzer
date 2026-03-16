@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner";
 
-export default function TextUpload({ setSubmittedText }: { setSubmittedText: (text: string) => void }) {
+export default function TextUpload({ setSubmittedText }: { setSubmittedText: React.Dispatch<React.SetStateAction<string | null>> }) {
     const [text, setText] = useState<string>("");
     const [uploadingText, setUploadingText] = useState<boolean>(false);
 

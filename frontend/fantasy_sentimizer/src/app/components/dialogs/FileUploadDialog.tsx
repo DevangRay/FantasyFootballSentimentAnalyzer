@@ -16,12 +16,9 @@ import {
     DropzoneEmptyState,
 } from '@/components/ui/shadcn-io/dropzone';
 import { Spinner } from "@/components/ui/spinner"
-
-import FileUploadButton from "@/app/components/FileUploadButton"
-
 import { useState } from "react"
 
-export default function FileUploadDialog({ setSubmittedText }: { setSubmittedText: (text: string) => void }) {
+export default function FileUploadDialog({ setSubmittedText, DialogButton }: { setSubmittedText: React.Dispatch<React.SetStateAction<string | null>>, DialogButton: React.ComponentType }) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [file, setFile] = useState<File[]>([]);
     const [uploadingFile, setUploadingFile] = useState<boolean>(false);
@@ -76,7 +73,7 @@ export default function FileUploadDialog({ setSubmittedText }: { setSubmittedTex
             }}
         >
             <DialogTrigger asChild>
-                <FileUploadButton />
+                <DialogButton />
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
