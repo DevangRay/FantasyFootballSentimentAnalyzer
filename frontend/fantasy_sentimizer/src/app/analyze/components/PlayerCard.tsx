@@ -10,12 +10,6 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button";
 import { AlignRight, UserRoundCheck, UserRoundCog } from "lucide-react";
 
@@ -55,38 +49,29 @@ export default function PlayerCard({ player, analysisResult, showSidebar, onOpen
                 <CardHeader>
                     <CardTitle>
                         <div
-                            className="flex flex-row items-center gap-4"
+                            className="flex flex-col relative"
                             onMouseEnter={() => setIsHovered(true)}
                             onMouseLeave={() => setIsHovered(false)}
                         >
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <span className="text-2xl font-bold cursor-default">{player}</span>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>
-                                            {renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)} | Transcript Name: {analysisResult[player].transcript_name}
-                                        </p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-
-                            <div
-                                className={`transition-all duration-400 ease-out ${isHovered
-                                    ? "opacity-100 translate-x-0"
-                                    : "opacity-0 -translate-x-5 pointer-events-none"
-                                    }`}
-                            >
+                            <div className="flex flex-row items-center sm:gap-4">
+                                <span className="text-2xl font-bold cursor-default">{player}</span>
                                 {
                                     analysisResult[player].status === MatchingStatusConst.perfect
-                                        ? <>
-                                            <UserRoundCheck className="text-green-500" />
-                                        </>
-                                        : <>
-                                            <UserRoundCog className="text-yellow-500" />
-                                        </>
+                                        ? <UserRoundCheck className="text-green-500" />
+                                        : <UserRoundCog className="text-yellow-500" />
                                 }
+                            </div>
+
+                            <div
+                                className={`absolute top-full left-0 transition-all duration-400 ease-out 
+                                    ${isHovered
+                                        ? "opacity-100 translate-y-0"
+                                        : "opacity-0 -translate-y-5 pointer-events-none"
+                                    }`}
+                            >
+                                <p className="text-sm font-normal text-muted-foreground">
+                                    {renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)} | Transcript Name: {analysisResult[player].transcript_name}
+                                </p>
                             </div>
                         </div>
                     </CardTitle>
@@ -95,7 +80,7 @@ export default function PlayerCard({ player, analysisResult, showSidebar, onOpen
                     {/* <CardDescription>Player Matching: {analysisResult[player].status} | Original Name: {analysisResult[player].transcript_name}</CardDescription> */}
                     {showSidebar && (
                         <CardAction>
-                            <Button onClick={onOpenDrawer} variant="outline" size="sm">
+                            <Button onClick={onOpenDrawer} variant="outline" size="sm" className="cursor-pointer">
                                 <AlignRight className="w-4 h-4 mr-1" /> Occurrences
                             </Button>
                         </CardAction>
