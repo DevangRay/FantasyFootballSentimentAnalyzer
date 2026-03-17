@@ -40,9 +40,9 @@ def analyze():
 @app.route("/analyze_stream", methods=['POST'])
 def analyze_stream():
     print("/analyze_stream endpoint hit")
-    print("transcript is: ")
+    # print("transcript is: ")
     data = request.get_json()
-    print(data)
+    print("data received in analyze_stream endpoint")
     
     
     transcript = data.get('transcript', None)
