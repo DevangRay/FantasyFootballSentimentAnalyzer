@@ -103,18 +103,17 @@ export default function PlayerCard({ player, analysisResult, showSidebar, onOpen
                 </CardHeader>
 
                 <CardContent>
-                    <div className="flex flex-row gap-[5%] pl-[9%] w-full">
-                        <div className="w-[35%]">
-
+                    <div className="flex flex-col sm:flex-row gap-4 sm:pl-[9%] w-full">
+                        <div className="w-full sm:w-[35%] flex flex-col items-center">
                             <div className="flex flex-col gap-2 items-center">
-                                <div className="relative w-[200px] h-[200px]">
+                                <div className="relative w-[160px] h-[160px] sm:w-[200px] sm:h-[200px]">
                                     <ImageWithFallback
                                         src={`https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${analysisResult[player].player_id}.png`}
                                         alt={`${player}'s Profile Photo`}
                                         // width={200}
                                         // height={200}
                                         fill
-                                        sizes="200px"
+                                        sizes="(max-width: 640px) 160px, 200px"
                                         style={{ objectFit: 'contain' }}
                                     />
                                 </div>

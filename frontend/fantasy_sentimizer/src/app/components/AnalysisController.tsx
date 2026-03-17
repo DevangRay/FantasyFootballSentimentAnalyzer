@@ -3434,7 +3434,7 @@ export default function AnalysisController({ submittedText, setSubmittedText }: 
                         {
                             sortedPlayers.length > 0 && error == null ?
                                 <>
-                                    <div className="flex items-center space-x-2">
+                                    <div className="flex items-center space-x-2 tem-sm sm:text-base">
                                         <Label htmlFor="show-sidebar">
                                             {
                                                 showSidebar ? "View Player Occurrences in Sidebar" : "View Player Occurrences as Carousel"
@@ -3448,7 +3448,12 @@ export default function AnalysisController({ submittedText, setSubmittedText }: 
                                     </div>
 
                                     <div className="w-full flex flex-row items-start justify-between">
-                                        <div className={`transition-all duration-300 ${openDrawerPlayer ? "w-[70vw]" : "w-[80vw] mx-auto"} flex flex-col gap-10 p-4`}>
+                                        {/* Card list - full width on mobile, shrinks on desktop when drawer is open */}
+                                        <div className={`
+                                            transition-all duration-300 w-full sm:w-fit 
+                                            md:${openDrawerPlayer ? "w-[70vw]" : "w-[80vw] md:mx-auto"} 
+                                            flex flex-col gap-6 sm:gap-10 p-4
+                                            `}>
                                             {sortedPlayers.map((player, index) => (
                                                 <PlayerCard
                                                     key={index}
@@ -3461,11 +3466,13 @@ export default function AnalysisController({ submittedText, setSubmittedText }: 
                                         </div>
 
                                         {openDrawerPlayer && (
-                                            <div className="w-[25vw] sticky right-0 top-0 h-screen overflow-y-auto border-l bg-background shadow-xl flex flex-col transition-all duration-300 z-50">
+                                            <div className="hidden md:flex w-[25vw] sticky right-0 top-0 h-screen overflow-y-auto border-l bg-background shadow-xl flex-col transition-all duration-300 z-50">
                                                 <div className="flex items-center justify-between px-4 py-3 border-b">
                                                     <h3 className="font-semibold text-sm">{openDrawerPlayer} — Occurrences</h3>
+
                                                     <button onClick={() => setOpenDrawerPlayer(null)} className="text-muted-foreground hover:text-foreground">✕</button>
                                                 </div>
+
                                                 <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
                                                     {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => {
                                                         const colors = labelColorMap[occurrence.best_label] ?? { text: "#60646b", bg: "#f3f4f6" };
@@ -3478,6 +3485,7 @@ export default function AnalysisController({ submittedText, setSubmittedText }: 
                                                                         {occurrence.best_label}
                                                                     </span>
                                                                 </CardHeader>
+
                                                                 <CardContent className="px-4 py-3">
                                                                     <p className="text-sm leading-relaxed">
                                                                         <HighlightWord text={occurrence.text} wordToBold={openDrawerPlayer} />
@@ -3490,6 +3498,41 @@ export default function AnalysisController({ submittedText, setSubmittedText }: 
                                             </div>
                                         )}
                                     </div>
+
+                                    {/* Mobile bottom sheet — only on small screens */}
+                                    {openDrawerPlayer && (
+                                        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t shadow-2xl rounded-t-2xl max-h-[60vh] flex flex-col">
+                                            <div className="flex items-center justify-between px-4 py-3 border-b">
+                                                <h3 className="font-semibold text-sm">{openDrawerPlayer} — Occurrences</h3>
+
+                                                <button onClick={() => setOpenDrawerPlayer(null)} className="text-muted-foreground hover:text-foreground">✕</button>
+                                            </div>
+                                            <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
+                                                <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
+                                                    {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => {
+                                                        const colors = labelColorMap[occurrence.best_label] ?? { text: "#60646b", bg: "#f3f4f6" };
+                                                        return (
+                                                            <Card key={index}>
+                                                                <CardHeader className="flex flex-row items-center justify-between py-2 px-4 border-b">
+                                                                    <span className="text-xs text-muted-foreground">Mention {index + 1}</span>
+                                                                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
+                                                                        style={{ color: colors.text, backgroundColor: colors.bg }}>
+                                                                        {occurrence.best_label}
+                                                                    </span>
+                                                                </CardHeader>
+
+                                                                <CardContent className="px-4 py-3">
+                                                                    <p className="text-sm leading-relaxed">
+                                                                        <HighlightWord text={occurrence.text} wordToBold={openDrawerPlayer} />
+                                                                    </p>
+                                                                </CardContent>
+                                                            </Card>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </>
                                 : <>
                                     <div className="flex-1 flex items-center justify-center">
@@ -3499,9 +3542,9 @@ export default function AnalysisController({ submittedText, setSubmittedText }: 
                         }
                     </>
                     : <>
-                        <div className="w-full max-w-sm flex h-[80vh] flex-col justify-center">
+                        <div className="w-fit sm:w-full max-w-sm flex h-[80vh] flex-col justify-center">
                             <div className="w-full max-w-sm flex flex-col py-4">
-                                <div className="flex justify-between items-center mb-1">
+                                <div className="flex gap-10 justify-between items-center mb-1">
                                     <div className="h-5 overflow-hidden relative" style={{ perspective: '300px' }}>
                                         <span
                                             key={loadingMessage}
@@ -3510,6 +3553,7 @@ export default function AnalysisController({ submittedText, setSubmittedText }: 
                                             {loadingMessage ? loadingMessage : "No loading message"}
                                         </span>
                                     </div>
+
                                     <span className="text-xs text-muted-foreground">{progress}%</span>
                                 </div>
                                 <Progress value={progress} />

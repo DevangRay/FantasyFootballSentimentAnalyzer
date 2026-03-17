@@ -28,7 +28,7 @@ export function Chart({ chartData, chartColor }: { chartData: { pole: string; va
         //     >
         <ChartContainer
             config={chartConfig}
-            className="w-[60%] min-h-[20px] max-h-[300px] [&_.recharts-wrapper]:overflow-visible [&_.recharts-wrapper]:!w-full [&_.recharts-surface]:!w-full"
+            className="w-full min-h-[20px] max-h-[300px] [&_.recharts-wrapper]:overflow-visible [&_.recharts-wrapper]:!w-full [&_.recharts-surface]:!w-full"
         >
             <RadarChart
                 data={chartData}

@@ -56,7 +56,7 @@ export default function TextUpload({ setSubmittedText }: { setSubmittedText: Rea
                     id="transcript-field"
                     value={text}
                     onChange={handleChange}
-                    className="w-full h-full resize-none outline-none bg-transparent p-8 text-xl leading-relaxed font-mono"
+                    className="w-full h-full resize-none outline-none bg-transparent p-4 sm:p-8 text-base sm:text-xl leading-relaxed font-mono"
                     placeholder="You can copy in the transcript here..."
                 />
             </section>

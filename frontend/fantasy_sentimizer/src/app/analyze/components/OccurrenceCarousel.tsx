@@ -19,7 +19,7 @@ const labelColorMap: Record<string, { text: string; bg: string }> = {
 export function OccurrenceCarousel({ occurrenceArray, player }: { occurrenceArray: DetailedSentiment[], player: string }) {
     return (
         <Carousel
-            className="w-[70vw] mx-auto px-8"
+            className="w-full max-w-[45vw] sm:max-w-[60vw] mx-auto px-0 sm:px-8"
             opts={{ loop: true }}
         >
             <CarouselContent>
