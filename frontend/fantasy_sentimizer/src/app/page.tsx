@@ -3,7 +3,7 @@ import HomePage from "@/app/components/pages/HomePage";
 
 export default function Home() {
   return (
-    <main className="h-screen flex flex-col bg-gray-50 font-mono">
+    <main className="h-screen flex flex-col font-mono">
       {/* Title */}
       <header className="flex flex-row justify-between border-b p-4 text-center ">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Fantasy Sentimizer</h1>
