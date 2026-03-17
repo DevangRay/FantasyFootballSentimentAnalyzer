@@ -3450,7 +3450,7 @@ export default function AnalysisController({ submittedText, setSubmittedText }: 
                                     <div className="w-full flex flex-row items-start justify-between">
                                         {/* Card list - full width on mobile, shrinks on desktop when drawer is open */}
                                         <div className={`
-                                            transition-all duration-300 w-full sm:w-fit 
+                                            transition-all duration-300 w-full 
                                             md:${openDrawerPlayer ? "w-[70vw]" : "w-[80vw] md:mx-auto"} 
                                             flex flex-col gap-6 sm:gap-10 p-4
                                             `}>
