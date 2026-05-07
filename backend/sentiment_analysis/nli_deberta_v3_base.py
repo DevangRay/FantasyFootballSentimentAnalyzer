@@ -30,7 +30,7 @@ def analyze_sentiment(final_player_object: dict, raw_sentences: list[str]):
     # Build context windows per player, capped per player
     player_texts = {}
     for player in sorted_players:
-        indexes = final_player_object[player]['mentioned_sentence_indexes'][:MAX_SENTENCES_PER_PLAYER]
+        indexes = list(final_player_object[player]['mentioned_sentence_indexes'])[:MAX_SENTENCES_PER_PLAYER]
         player_texts[player] = [
             context_window.get_context_window(idx, raw_sentences, window_size=2)
             for idx in indexes
