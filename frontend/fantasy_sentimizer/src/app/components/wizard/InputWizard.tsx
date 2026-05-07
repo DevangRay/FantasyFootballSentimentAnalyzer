@@ -120,7 +120,7 @@ export default function InputWizard({ setSubmittedText }: { setSubmittedText: Re
                     <div className="flex flex-row gap-6">
                         <InputButton
                             text="Try the Demo"
-                            description="Instantly analyze a pre-loaded fantasy football podcast — no setup needed"
+                            description="Instantly analyze a pre-loaded fantasy football podcast.  No setup needed!"
                             icon={Play}
                             blobA={DEMO_BLOB_A}
                             blobB={DEMO_BLOB_B}
