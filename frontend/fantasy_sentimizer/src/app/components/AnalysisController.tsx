@@ -29,14 +29,14 @@ export default function AnalysisController({ submittedText, setSubmittedText }: 
     const [openDrawerPlayer, setOpenDrawerPlayer] = useState<string | null>(null);
 
     useEffect(() => {
-        const cancellationToken = { cancelled: false };
+        const controller = new AbortController();
 
         // mockCallAPI();
         // callAPI();
-        callAPIStream(cancellationToken);
+        callAPIStream(controller.signal);
 
         return () => {
-            cancellationToken.cancelled = true;
+            controller.abort();
         }
     }, [submittedText]);
 
@@ -3391,7 +3391,7 @@ export default function AnalysisController({ submittedText, setSubmittedText }: 
         }
     }
 
-    async function callAPIStream(cancellationToken: { cancelled: boolean }) {
+    async function callAPIStream(signal: AbortSignal) {
         try {
             setLoading(true);
             setProgress(0);
@@ -3401,25 +3401,23 @@ export default function AnalysisController({ submittedText, setSubmittedText }: 
             await performAnalysisStream(
                 submittedText,
                 (progress, message) => {
-                    if (cancellationToken.cancelled) return;
-
                     setProgress(progress);
                     setLoadingMessage(message);
                 },
                 (result) => {
-                    if (cancellationToken.cancelled) return;
-
                     console.log("streaming complete, moving to sorting");
                     const sortedPlayers = sortPlayersByStatusAndMentions(result)
                     console.log("sorted Players: ", sortedPlayers);
 
                     setAnalysisResult(result);
                     setSortedPlayers(sortedPlayers);
-                }
+                },
+                signal
             );
 
             setLoading(false);
         } catch (error) {
+            if (error instanceof Error && error.name === 'AbortError') return;
             setError(error instanceof Error ? error.message : "Unknown error");
             console.error("Error calling API: ", error);
             setLoading(false);

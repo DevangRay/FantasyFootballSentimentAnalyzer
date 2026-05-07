@@ -51,30 +51,33 @@ def analyze_stream():
         return jsonify({"error": "No transcript provided"}), 469
 
     def generate():
-        # Step 1
-        yield f"data: {json.dumps({'progress': 10, 'message': 'Processing transcript...'})}\n\n"
-        identified_names, raw_sentences = sentiment_analyzer.process_transcript(podcast_transcript_text=transcript)
-        print("Total Identified Names:", len(identified_names))
+        try:
+            # Step 1
+            yield f"data: {json.dumps({'progress': 10, 'message': 'Processing transcript...'})}\n\n"
+            identified_names, raw_sentences = sentiment_analyzer.process_transcript(podcast_transcript_text=transcript)
+            print("Total Identified Names:", len(identified_names))
 
-        # Step 2
-        yield f"data: {json.dumps({'progress': 25, 'message': 'Identifying NFL players...'})}\n\n"
-        final_player_object = sentiment_analyzer.match_players_to_roster(identified_names)
-        print("Total Unique Players Mentioned:", len(final_player_object))
+            # Step 2
+            yield f"data: {json.dumps({'progress': 25, 'message': 'Identifying NFL players...'})}\n\n"
+            final_player_object = sentiment_analyzer.match_players_to_roster(identified_names)
+            print("Total Unique Players Mentioned:", len(final_player_object))
 
-        # Step 3
-        yield f"data: {json.dumps({'progress': 50, 'message': 'Running sentiment analysis...'})}\n\n"
-        player_sentiments = nli.analyze_sentiment(final_player_object, raw_sentences)
-        print("Total Players with Sentiment Analysis:", len(player_sentiments))
-        
-        # Step 4
-        yield f"data: {json.dumps({'progress': 90, 'message': 'Aggregating consensus scores...'})}\n\n"
-        print("Starting delay...")
-        time.sleep(2)
-        print("Delay completed after 2 seconds.")
-        
-        # Done — send final payload
-        print("Sending final results...")
-        yield f"data: {json.dumps({'progress': 100, 'message': 'Complete', 'result': player_sentiments})}\n\n"
+            # Step 3
+            yield f"data: {json.dumps({'progress': 50, 'message': 'Running sentiment analysis...'})}\n\n"
+            player_sentiments = nli.analyze_sentiment(final_player_object, raw_sentences)
+            print("Total Players with Sentiment Analysis:", len(player_sentiments))
+
+            # Step 4
+            yield f"data: {json.dumps({'progress': 90, 'message': 'Aggregating consensus scores...'})}\n\n"
+            print("Starting delay...")
+            time.sleep(2)
+            print("Delay completed after 2 seconds.")
+
+            # Done — send final payload
+            print("Sending final results...")
+            yield f"data: {json.dumps({'progress': 100, 'message': 'Complete', 'result': player_sentiments})}\n\n"
+        except GeneratorExit:
+            print("Client disconnected, stopping stream")
 
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
 

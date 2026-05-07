@@ -45,7 +45,8 @@ export async function performAnalysis(text: string): Promise<any> {
 export async function performAnalysisStream(
     text: string,
     onEventRecieved: (progress: number, message: string) => void,
-    onComplete: (result: SentimentObject) => void
+    onComplete: (result: SentimentObject) => void,
+    signal?: AbortSignal
 ): Promise<void> {
     const response = await fetch(`${API_BACKEND_BASE_URL}/analyze_stream`, {
         method: 'POST',
@@ -55,6 +56,7 @@ export async function performAnalysisStream(
         body: JSON.stringify({
             transcript: text
         }),
+        signal,
     });
 
     if (!response.ok) {
