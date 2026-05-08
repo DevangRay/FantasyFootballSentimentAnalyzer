@@ -118,3 +118,7 @@ cd frontend/fantasy_sentimizer
 npm install
 NEXT_PUBLIC_BACKEND_URL=http://localhost:5000 npm run dev
 ```
+## Limitations
+The project requires the user to input a podcast transcript. It would be much more natural to start the process from the YouTube link or downloaded audio file, but transcription would both make the analysis process take even longer and is a resource heavy process, especially to create higher-qulity transcripts that can actually capture proper names (important for our use case). Since the quality of transcript is directly related to the quality of sentiment analysis possible, users are currently pointed to an external website to perform the transcription before coming back to the site. 
+
+With more resources, I would use OpenAI's Whisper to manually create transcriptions and immediately pipe the results into the existing analysis process.
