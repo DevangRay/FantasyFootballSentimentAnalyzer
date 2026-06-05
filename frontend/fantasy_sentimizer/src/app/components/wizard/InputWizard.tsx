@@ -62,8 +62,9 @@ const WizardFileUploadButton = React.forwardRef<
 
 export default function InputWizard() {
     const [stage, setStage] = useState<Stage>(1);
-    const [visibleDots, setVisibleDots] = useState(1);
-    const [transcriptText, setTranscriptText] = useState("");
+    const [visibleDots, setVisibleDots] = useState<number>(1);
+    const [transcriptText, setTranscriptText] = useState<string>("");
+    const [fetchingDemo, setFetchingDemo] = useState<boolean>(false);
     const router = useRouter();
 
     function submit(text: string) {
@@ -73,12 +74,13 @@ export default function InputWizard() {
 
     async function onDemoClick() {
         try {
-            // retrieve transcript.txt from /public
+            setFetchingDemo(true);
             const response = await fetch("transcript.txt");
             const text = await response.text();
             submit(text);
         } catch (e) {
             console.error("Error loading demo transcript: ", e);
+            setFetchingDemo(false);
         }
     }
 
@@ -130,6 +132,8 @@ export default function InputWizard() {
                             icon={Play}
                             blobA={DEMO_BLOB_A}
                             blobB={DEMO_BLOB_B}
+                            loading={fetchingDemo}
+                            disabled={fetchingDemo}
                             onClick={() => { onDemoClick() }}
                         />
                         <InputButton
@@ -138,6 +142,7 @@ export default function InputWizard() {
                             icon={Mic}
                             blobA={PODCAST_BLOB_A}
                             blobB={PODCAST_BLOB_B}
+                            disabled={fetchingDemo}
                             onClick={goToStage2}
                         />
                     </div>

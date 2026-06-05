@@ -20,7 +20,7 @@ const labelColorMap: Record<string, { text: string; bg: string }> = {
 }
 
 export default function AnalysisController({ transcriptText }: { transcriptText: string }) {
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
     const [progress, setProgress] = useState<number>(0);
     const [loadingMessage, setLoadingMessage] = useState<string>("Starting analysis...");
     const [analysisResult, setAnalysisResult] = useState<SentimentObject>({});

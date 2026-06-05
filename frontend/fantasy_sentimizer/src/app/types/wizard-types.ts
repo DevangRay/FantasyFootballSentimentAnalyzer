@@ -8,6 +8,7 @@ export interface InputButtonOwnProps {
     blobA: string;
     blobB: string;
     isExternal?: boolean;
+    loading?: boolean;
 }
 
 export type InputButtonProps = InputButtonOwnProps & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, keyof InputButtonOwnProps>;

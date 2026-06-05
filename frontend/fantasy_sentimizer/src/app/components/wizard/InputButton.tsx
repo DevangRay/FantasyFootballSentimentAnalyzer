@@ -1,15 +1,15 @@
 import * as React from "react";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { InputButtonProps } from "@/app/types/wizard-types";
 
 const InputButton = React.forwardRef<HTMLButtonElement, InputButtonProps>(
-    ({ text, description, icon: Icon, blobA, blobB, isExternal, className, ...props }, ref) => {
+    ({ text, description, icon: Icon, blobA, blobB, isExternal, loading, className, ...props }, ref) => {
         return (
             <button
                 ref={ref}
                 {...props}
-                className={cn("group relative flex-1 flex flex-col overflow-hidden rounded-2xl cursor-pointer transition-transform duration-200 ease-out hover:-translate-y-1 hover:translate-x-0.5 active:-translate-y-1 active:translate-x-0.5 text-left shadow-md", className)}
+                className={cn("group relative flex-1 flex flex-col overflow-hidden rounded-2xl cursor-pointer transition-transform duration-200 ease-out hover:-translate-y-1 hover:translate-x-0.5 active:-translate-y-1 active:translate-x-0.5 text-left shadow-md disabled:cursor-prpgress disabled:hover:translate-y-0 disabled:hover:translate-x-0 disabled:active:translate-y-0 disabled:active:translate-x-0", className)}
             >
                 {/* Gradient blobs */}
                 <div className={`absolute inset-0 ${blobA} opacity-60 pointer-events-none`} />
@@ -40,13 +40,19 @@ const InputButton = React.forwardRef<HTMLButtonElement, InputButtonProps>(
                 )}
 
                 {/* Content */}
-                <div className="relative z-10 flex flex-col items-center gap-4 px-6 py-10">
+                <div className={cn("relative z-10 flex flex-col items-center gap-4 px-6 py-10 transition-all duration-200", loading && "blur-sm opacity-40")}>
                     <div className="p-3 rounded-full bg-white/50">
                         <Icon className="size-8" strokeWidth={1.5} />
                     </div>
                     <h3 className="text-base font-bold text-foreground">{text}</h3>
                     <p className="text-xs text-foreground/60 md:text-center leading-relaxed">{description}</p>
                 </div>
+
+                {loading && (
+                    <div className="absolute inset-0 z-20 flex items-center justify-center">
+                        <Loader2 className="size-8 animate-spin text-foreground/70" />
+                    </div>
+                )}
             </button>
         )
     });
