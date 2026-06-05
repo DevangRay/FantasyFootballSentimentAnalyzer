@@ -143,6 +143,16 @@ On desktop, clicking a player opens a sticky sidebar panel showing all their men
 
 ---
 
+## CI / Automation
+
+Two GitHub Actions workflows keep the roster data fresh without any manual intervention.
+
+**[post-deploy.yml](.github/workflows/post-deploy.yml)** — Triggers automatically whenever a Railway deployment succeeds. Railway rebuilds the backend container from the Docker image on every push, which resets `nfl_roster.json` to whatever was baked in at build time. This workflow calls `/nfl/athletes` immediately after a successful deploy to repopulate the roster from the ESPN API before any real users hit the app. The steps also hit `/nfl/roster/meta` before and after the refresh, so the run log shows the file's last-modified timestamp on both sides — a lightweight sanity check that the refresh actually happened.
+
+**[refresh-nfl-roster.yml](.github/workflows/refresh-nfl-roster.yml)** — Runs on a weekly cron every Wednesday at midnight UTC, plus a manual dispatch trigger for ad-hoc refreshes. NFL rosters change throughout the season — trades, injuries, waiver pickups — so the cached roster needs regular updates to stay accurate. Wednesday was chosen because that's typically when the weekly transaction window settles after Monday and Tuesday moves, right before the main fantasy decision period (Thursday–Sunday). A stale roster means recently acquired or dropped players get missed or mismatched, which directly degrades analysis quality.
+
+---
+
 ## Running Locally
 
 ### Backend
