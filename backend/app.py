@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, Response, stream_with_context
 import json
 import time
+import os
 from flask_cors import CORS
 import requests
 
@@ -142,6 +143,17 @@ def get_player_photo(player_id):
         return jsonify({"photo_url": url})
     except requests.RequestException as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/nfl/roster/meta', methods=['GET'])
+def get_roster_meta():
+    path = './resources/nfl_roster.json'
+    with open(path, 'r') as f:
+        roster = json.load(f)
+    return jsonify({
+        'player_count': len(roster),
+        'last_updated': os.path.getmtime(path)
+    })
+
 
 if __name__ == '__main__':
     app.run(debug=True)
