@@ -98,12 +98,6 @@ def analyzeSetup():
     
     return jsonify(response)
 
-# STATIC EXAMPLE OF ANALYSIS
-@app.route("/analyze/example", methods=['GET'])
-def analyzeExample():
-    results = sentiment_analyzer.main()
-    return jsonify(results)
-
 # GET NFL ATHLETES 
 @app.route('/nfl/athletes', methods=['GET'])
 def get_nfl_athletes():
@@ -115,7 +109,6 @@ def get_nfl_athletes():
         data = response.json()
         print("data received")
         
-        print(data)
         athletes_array = data['athletes']
         
         output_array = {}
@@ -127,20 +120,9 @@ def get_nfl_athletes():
             print(athlete_object)
             
             output_array[athlete['displayName']] = athlete_object
-        print("output_array constructed")
-        # output_array = []
-        # for athlete in athletes_array:
-        #     athlete_object = {
-        #         'id': athlete['id'],
-        #         'name': athlete['displayName'],
-        #         'team': athlete['team']['displayName']
-        #     }
-        #     print(athlete_object)
-            
-        #     output_array.append(athlete_object)
-        print("writing to nfl_roster.json")
+        print("output_array constructed. writing to nfl_roster.json")
+        
         with open('./resources/nfl_roster.json', 'w') as f:
-            import json
             json.dump(output_array, f, ensure_ascii=False, indent=2)
         
         print("returning output_array")
