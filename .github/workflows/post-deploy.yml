@@ -11,8 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Call /nfl/athletes endpoint
+      - name: Get LAST modified time of nfl_roster.json
         run: |
           curl --fail --silent --show-error "${{ secrets.RAILWAY_BACKEND_URL }}/nfl/roster/meta"
+
+      - name: Refresh deployed nfl_roster.json
+        run: |
           curl --fail --silent --show-error "${{ secrets.RAILWAY_BACKEND_URL }}/nfl/athletes"
+        
+      - name: Get NEW modified time of nfl_roster.json
+        run: |
           curl --fail --silent --show-error "${{ secrets.RAILWAY_BACKEND_URL }}/nfl/roster/meta"
