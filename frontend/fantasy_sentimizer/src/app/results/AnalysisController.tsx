@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -7,7 +8,6 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
 import { performAnalysisStream } from "@/app/api/sentiment_analysis_api";
-import EmptyState from "@/app/components/EmptyState";
 import HighlightWord from "@/app/results/analyze/HighlightPlayer";
 import PlayerCard from "@/app/results/analyze/PlayerCard";
 import { SentimentObject } from "@/app/types/analyze-types";
@@ -23,15 +23,19 @@ export default function AnalysisController({ transcriptText }: { transcriptText:
     const [loading, setLoading] = useState<boolean>(false);
     const [progress, setProgress] = useState<number>(0);
     const [loadingMessage, setLoadingMessage] = useState<string>("Starting analysis...");
-    const [currentTranscriptText, setCurrentTranscriptText] = useState<string>(transcriptText);
     const [analysisResult, setAnalysisResult] = useState<SentimentObject>({});
     const [error, setError] = useState<string | null>(null);
     const [sortedPlayers, setSortedPlayers] = useState<string[]>([]);
     const [showSidebar, setShowSidebar] = useState<boolean>(true);
     const [openDrawerPlayer, setOpenDrawerPlayer] = useState<string | null>(null);
 
+    const router = useRouter();
+
     useEffect(() => {
-        if (analysisResult && Object.keys(analysisResult).length > 0) return;
+        if (analysisResult && Object.keys(analysisResult).length > 0) {
+            setLoading(false);
+            return;
+        }
 
         const controller = new AbortController();
 
@@ -48,20 +52,17 @@ export default function AnalysisController({ transcriptText }: { transcriptText:
         return () => {
             controller.abort();
         }
-    }, [currentTranscriptText]);
+    }, [transcriptText]);
+
+    useEffect(() => {
+        if (error !== null) {
+            renderError(error);
+        }
+    }, [error]);
 
     function onSwitchClick() {
         setShowSidebar(!showSidebar);
         setOpenDrawerPlayer(null);
-    }
-
-    function sortPlayersByMentions(obj: SentimentObject, order = 'desc') {
-        return Object.keys(obj)
-            .sort((a, b) => {
-                const lengthA = obj[a]["detailed_sentiment"]?.length || 0;
-                const lengthB = obj[b]["detailed_sentiment"]?.length || 0;
-                return order === 'desc' ? lengthB - lengthA : lengthA - lengthB;
-            });
     }
 
     function sortPlayersByStatusAndMentions(obj: SentimentObject) {
@@ -88,7 +89,7 @@ export default function AnalysisController({ transcriptText }: { transcriptText:
 
             console.log("calling api stream")
             await performAnalysisStream(
-                currentTranscriptText,
+                transcriptText,
                 (progress, message) => {
                     setProgress(progress);
                     setLoadingMessage(message);
@@ -104,6 +105,10 @@ export default function AnalysisController({ transcriptText }: { transcriptText:
                 signal
             );
 
+            if (sortedPlayers.length < 1) {
+                setError("No players found.");
+            }
+
             setLoading(false);
         } catch (error) {
             if (error instanceof Error && error.name === 'AbortError') return;
@@ -113,128 +118,122 @@ export default function AnalysisController({ transcriptText }: { transcriptText:
         }
     }
 
-    function resubmit(newText: string) {
-        sessionStorage.setItem("submittedTranscript", newText);
-        setCurrentTranscriptText(newText);
+    function renderError(errorText: string | null) {
+        if (errorText !== null) {
+            sessionStorage.setItem("errorText", errorText);
+        }
+        router.push("/error");
     }
 
-    
+
     return (
         <div className="flex-1 flex flex-col min-h-0 mt-4 items-center">
             {
                 !loading ?
                     <>
-                        {
-                            sortedPlayers.length > 0 && error == null ?
-                                <>
-                                    <div className="flex items-center space-x-2 tem-sm sm:text-base">
-                                        <Label htmlFor="show-sidebar">
-                                            {
-                                                showSidebar ? "View Player Occurrences in Sidebar" : "View Player Occurrences as Carousel"
-                                            }
-                                        </Label>
-                                        <Switch
-                                            id="show-sidebar"
-                                            checked={showSidebar}
-                                            onClick={onSwitchClick}
+                        <>
+                            <div className="flex items-center space-x-2 tem-sm sm:text-base">
+                                <Label htmlFor="show-sidebar">
+                                    {
+                                        showSidebar ? "View Player Occurrences in Sidebar" : "View Player Occurrences as Carousel"
+                                    }
+                                </Label>
+                                <Switch
+                                    id="show-sidebar"
+                                    checked={showSidebar}
+                                    onClick={onSwitchClick}
+                                />
+                            </div>
+
+                            <div className="w-full flex flex-row items-start justify-between">
+                                {/* Card list - full width on mobile, shrinks on desktop when drawer is open */}
+                                <div className={[
+                                    "transition-all duration-300 flex flex-col gap-6 sm:gap-10 p-4",
+                                    "w-full",                                          // mobile: full width
+                                    openDrawerPlayer
+                                        ? "md:w-[70vw]"                               // desktop: drawer open
+                                        : "md:w-[80vw] md:mx-auto"                    // desktop: drawer closed
+                                ].join(" ")}>
+                                    {sortedPlayers.map((player, index) => (
+                                        <PlayerCard
+                                            key={index}
+                                            player={player}
+                                            analysisResult={analysisResult}
+                                            showSidebar={showSidebar}
+                                            onOpenDrawer={() => setOpenDrawerPlayer(player)}
                                         />
-                                    </div>
+                                    ))}
+                                </div>
 
-                                    <div className="w-full flex flex-row items-start justify-between">
-                                        {/* Card list - full width on mobile, shrinks on desktop when drawer is open */}
-                                        <div className={[
-                                            "transition-all duration-300 flex flex-col gap-6 sm:gap-10 p-4",
-                                            "w-full",                                          // mobile: full width
-                                            openDrawerPlayer
-                                                ? "md:w-[70vw]"                               // desktop: drawer open
-                                                : "md:w-[80vw] md:mx-auto"                    // desktop: drawer closed
-                                        ].join(" ")}>
-                                            {sortedPlayers.map((player, index) => (
-                                                <PlayerCard
-                                                    key={index}
-                                                    player={player}
-                                                    analysisResult={analysisResult}
-                                                    showSidebar={showSidebar}
-                                                    onOpenDrawer={() => setOpenDrawerPlayer(player)}
-                                                />
-                                            ))}
+                                {openDrawerPlayer && (
+                                    <div className="hidden md:flex w-[25vw] sticky right-0 top-0 h-screen overflow-y-auto border-l bg-background shadow-xl flex-col transition-all duration-300 z-50">
+                                        <div className="flex items-center justify-between px-4 py-3 border-b">
+                                            <h3 className="font-semibold text-sm">{openDrawerPlayer} — Occurrences</h3>
+
+                                            <button onClick={() => setOpenDrawerPlayer(null)} className="text-muted-foreground hover:text-foreground">✕</button>
                                         </div>
 
-                                        {openDrawerPlayer && (
-                                            <div className="hidden md:flex w-[25vw] sticky right-0 top-0 h-screen overflow-y-auto border-l bg-background shadow-xl flex-col transition-all duration-300 z-50">
-                                                <div className="flex items-center justify-between px-4 py-3 border-b">
-                                                    <h3 className="font-semibold text-sm">{openDrawerPlayer} — Occurrences</h3>
+                                        <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
+                                            {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => {
+                                                const colors = labelColorMap[occurrence.best_label] ?? { text: "#60646b", bg: "#f3f4f6" };
+                                                return (
+                                                    <Card key={index}>
+                                                        <CardHeader className="flex flex-row items-center justify-between py-2 px-4 border-b">
+                                                            <span className="text-xs text-muted-foreground">Mention {index + 1}</span>
+                                                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
+                                                                style={{ color: colors.text, backgroundColor: colors.bg }}>
+                                                                {occurrence.best_label}
+                                                            </span>
+                                                        </CardHeader>
 
-                                                    <button onClick={() => setOpenDrawerPlayer(null)} className="text-muted-foreground hover:text-foreground">✕</button>
-                                                </div>
-
-                                                <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
-                                                    {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => {
-                                                        const colors = labelColorMap[occurrence.best_label] ?? { text: "#60646b", bg: "#f3f4f6" };
-                                                        return (
-                                                            <Card key={index}>
-                                                                <CardHeader className="flex flex-row items-center justify-between py-2 px-4 border-b">
-                                                                    <span className="text-xs text-muted-foreground">Mention {index + 1}</span>
-                                                                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
-                                                                        style={{ color: colors.text, backgroundColor: colors.bg }}>
-                                                                        {occurrence.best_label}
-                                                                    </span>
-                                                                </CardHeader>
-
-                                                                <CardContent className="px-4 py-3">
-                                                                    <p className="text-sm leading-relaxed">
-                                                                        <HighlightWord text={occurrence.text} wordToBold={openDrawerPlayer} />
-                                                                    </p>
-                                                                </CardContent>
-                                                            </Card>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Mobile bottom sheet — only on small screens */}
-                                    {openDrawerPlayer && (
-                                        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t shadow-2xl rounded-t-2xl max-h-[60vh] flex flex-col">
-                                            <div className="flex items-center justify-between px-4 py-3 border-b">
-                                                <h3 className="font-semibold text-sm">{openDrawerPlayer} — Occurrences</h3>
-
-                                                <button onClick={() => setOpenDrawerPlayer(null)} className="text-muted-foreground hover:text-foreground">✕</button>
-                                            </div>
-                                            <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
-                                                <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
-                                                    {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => {
-                                                        const colors = labelColorMap[occurrence.best_label] ?? { text: "#60646b", bg: "#f3f4f6" };
-                                                        return (
-                                                            <Card key={index}>
-                                                                <CardHeader className="flex flex-row items-center justify-between py-2 px-4 border-b">
-                                                                    <span className="text-xs text-muted-foreground">Mention {index + 1}</span>
-                                                                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
-                                                                        style={{ color: colors.text, backgroundColor: colors.bg }}>
-                                                                        {occurrence.best_label}
-                                                                    </span>
-                                                                </CardHeader>
-
-                                                                <CardContent className="px-4 py-3">
-                                                                    <p className="text-sm leading-relaxed">
-                                                                        <HighlightWord text={occurrence.text} wordToBold={openDrawerPlayer} />
-                                                                    </p>
-                                                                </CardContent>
-                                                            </Card>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </div>
+                                                        <CardContent className="px-4 py-3">
+                                                            <p className="text-sm leading-relaxed">
+                                                                <HighlightWord text={occurrence.text} wordToBold={openDrawerPlayer} />
+                                                            </p>
+                                                        </CardContent>
+                                                    </Card>
+                                                );
+                                            })}
                                         </div>
-                                    )}
-                                </>
-                                : <>
-                                    <div className="flex-1 flex items-center justify-center">
-                                        <EmptyState error={error} submit={resubmit} />
                                     </div>
-                                </>
-                        }
+                                )}
+                            </div>
+
+                            {/* Mobile bottom sheet — only on small screens */}
+                            {openDrawerPlayer && (
+                                <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t shadow-2xl rounded-t-2xl max-h-[60vh] flex flex-col">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b">
+                                        <h3 className="font-semibold text-sm">{openDrawerPlayer} — Occurrences</h3>
+
+                                        <button onClick={() => setOpenDrawerPlayer(null)} className="text-muted-foreground hover:text-foreground">✕</button>
+                                    </div>
+                                    <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
+                                        <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
+                                            {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => {
+                                                const colors = labelColorMap[occurrence.best_label] ?? { text: "#60646b", bg: "#f3f4f6" };
+                                                return (
+                                                    <Card key={index}>
+                                                        <CardHeader className="flex flex-row items-center justify-between py-2 px-4 border-b">
+                                                            <span className="text-xs text-muted-foreground">Mention {index + 1}</span>
+                                                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
+                                                                style={{ color: colors.text, backgroundColor: colors.bg }}>
+                                                                {occurrence.best_label}
+                                                            </span>
+                                                        </CardHeader>
+
+                                                        <CardContent className="px-4 py-3">
+                                                            <p className="text-sm leading-relaxed">
+                                                                <HighlightWord text={occurrence.text} wordToBold={openDrawerPlayer} />
+                                                            </p>
+                                                        </CardContent>
+                                                    </Card>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     </>
                     : <>
                         <div className="w-fit sm:w-full max-w-sm flex h-[80vh] flex-col justify-center">
