@@ -1,0 +1,14 @@
+name: Post-Deploy Tasks
+
+on:
+  deployment_status:
+
+jobs:
+  post-deplay-tasks:
+    if: github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Call /nfl/athletes endpoint
+        run: |
+          curl --fail --silent --show-error "${{ secrets.RAILWAY_BACKEND_URL }}/nfl/athletes"
