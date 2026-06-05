@@ -88,6 +88,7 @@ export default function AnalysisController({ transcriptText }: { transcriptText:
             setLoadingMessage("Starting analysis...");
 
             console.log("calling api stream")
+            let sortedPlayerResults: string[] = [];
             await performAnalysisStream(
                 transcriptText,
                 (progress, message) => {
@@ -96,16 +97,16 @@ export default function AnalysisController({ transcriptText }: { transcriptText:
                 },
                 (result) => {
                     console.log("streaming complete, moving to sorting");
-                    const sortedPlayers = sortPlayersByStatusAndMentions(result)
-                    console.log("sorted Players: ", sortedPlayers);
+                    sortedPlayerResults = sortPlayersByStatusAndMentions(result)
+                    console.log("sorted Players: ", sortedPlayerResults);
 
                     setAnalysisResult(result);
-                    setSortedPlayers(sortedPlayers);
+                    setSortedPlayers(sortedPlayerResults);
                 },
                 signal
             );
 
-            if (sortedPlayers.length < 1) {
+            if (sortedPlayerResults.length < 1) {
                 setError("No players found.");
             }
 
