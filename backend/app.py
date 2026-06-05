@@ -153,13 +153,11 @@ def get_roster_meta():
     
     modification_time = os.path.getmtime(path)
     local_datetime = datetime.datetime.fromtimestamp(modification_time)
-    readable_time = local_datetime.strftime('%Y-%m-%d %H:%M:%S')
+    readable_time = local_datetime.strftime('%Y-%m-%d %H:%M:%S %Z')
         
     return jsonify({
         'player_count': len(roster),
         'last_updated': readable_time,
-        'local_datetime': local_datetime,
-        'modification_time': modification_time
     })
 
 

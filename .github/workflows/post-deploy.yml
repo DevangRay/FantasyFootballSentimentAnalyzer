@@ -14,3 +14,4 @@ jobs:
       - name: Call /nfl/athletes endpoint
         run: |
           curl --fail --silent --show-error "${{ secrets.RAILWAY_BACKEND_URL }}/nfl/athletes"
+          curl --fail --silent --show-error "${{ secrets.RAILWAY_BACKEND_URL }}/nfl/roster/meta"
