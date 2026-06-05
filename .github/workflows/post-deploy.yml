@@ -2,6 +2,8 @@ name: Post-Deploy Tasks
 
 on:
   deployment_status:
+  workflow_dispatch:
+
 
 jobs:
   post-deplay-tasks:
