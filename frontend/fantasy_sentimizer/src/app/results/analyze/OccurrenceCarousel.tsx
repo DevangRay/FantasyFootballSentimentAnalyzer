@@ -8,7 +8,7 @@ import {
     CarouselPrevious,
 } from "@/components/ui/carousel";
 import { DetailedSentiment } from "@/app/types/analyze-types";
-import HighlightWord from "@/app/components/HighlightPlayer";
+import HighlightWord from "@/app/results/analyze/HighlightPlayer";
 
 const labelColorMap: Record<string, { text: string; bg: string }> = {
     positive: { text: "#22c55e", bg: "#dcfce7" },
@@ -54,31 +54,3 @@ export function OccurrenceCarousel({ occurrenceArray, player }: { occurrenceArra
         </Carousel>
     )
 }
-
-// export function OccurrenceCarousel({occurrenceArray, player}: {occurrenceArray: DetailedSentiment[], player: string}) {
-//     return (
-//         <Carousel
-//             className="w-full max-w-[12rem] sm:max-w-xs"
-//             opts = {{
-//                 loop: true,
-//             }}
-//             >
-//             <CarouselContent>
-//                 {occurrenceArray.map((occurrence, index) => (
-//                     <CarouselItem key={index}>
-//                         <div>
-//                             <Card>
-//                                 <CardContent className="flex aspect-square items-center justify-center p-6">
-//                                     {/* <span>{player}</span> */}
-//                                     <HighlightWord text={occurrence.text} wordToBold={player} />
-//                                 </CardContent>
-//                             </Card>
-//                         </div>
-//                     </CarouselItem>
-//                 ))}
-//             </CarouselContent>
-//             <CarouselPrevious />
-//             <CarouselNext />
-//         </Carousel>
-//     )
-// }

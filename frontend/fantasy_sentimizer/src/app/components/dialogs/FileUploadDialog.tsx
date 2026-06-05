@@ -18,7 +18,7 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { useState } from "react"
 
-export default function FileUploadDialog({ setSubmittedText, DialogButton }: { setSubmittedText: React.Dispatch<React.SetStateAction<string | null>>, DialogButton: React.ComponentType }) {
+export default function FileUploadDialog({ onSubmit, DialogButton }: { onSubmit: (text: string) => void, DialogButton: React.ComponentType }) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [file, setFile] = useState<File[]>([]);
     const [uploadingFile, setUploadingFile] = useState<boolean>(false);
@@ -46,7 +46,7 @@ export default function FileUploadDialog({ setSubmittedText, DialogButton }: { s
         setTimeout(() => {
             reader.onload = (event) => {
                 const text = event.target?.result as string;
-                setSubmittedText(text);
+                onSubmit(text);
                 setUploadingFile(false);
                 setOpenDialog(false);
                 setFile([]);

@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { SetStateAction, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Play, Mic, Upload, Link, ChevronLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -59,18 +60,23 @@ const WizardFileUploadButton = React.forwardRef<
 }
 );
 
-export default function InputWizard({ setSubmittedText }: { setSubmittedText: React.Dispatch<SetStateAction<string | null>> }) {
+export default function InputWizard() {
     const [stage, setStage] = useState<Stage>(1);
     const [visibleDots, setVisibleDots] = useState(1);
     const [transcriptText, setTranscriptText] = useState("");
+    const router = useRouter();
 
+    function submit(text: string) {
+        sessionStorage.setItem("submittedTranscript", text);
+        router.push("/results");
+    }
 
     async function onDemoClick() {
         try {
             // retrieve transcript.txt from /public
             const response = await fetch("transcript.txt");
             const text = await response.text();
-            setSubmittedText(text);
+            submit(text);
         } catch (e) {
             console.error("Error loading demo transcript: ", e);
         }
@@ -140,7 +146,7 @@ export default function InputWizard({ setSubmittedText }: { setSubmittedText: Re
                 {/* Stage 2: Upload File vs YouTube Link */}
                 {stage === 2 && (
                     <div className="flex flex-row gap-6">
-                        <FileUploadDialog setSubmittedText={setSubmittedText} DialogButton={WizardFileUploadButton} />
+                        <FileUploadDialog onSubmit={submit} DialogButton={WizardFileUploadButton} />
                         <InputButton
                             text="I have a YouTube link"
                             description="We'll open a transcription site in a new tab — come back here once your transcript is ready"
@@ -167,7 +173,7 @@ export default function InputWizard({ setSubmittedText }: { setSubmittedText: Re
                             <Button
                                 disabled={!transcriptText.trim()}
                                 className="gap-2 cursor-pointer"
-                                onClick={() => { setSubmittedText(transcriptText) }}
+                                onClick={() => { submit(transcriptText) }}
                             >
                                 Analyze
                                 <ArrowRight className="size-4" />

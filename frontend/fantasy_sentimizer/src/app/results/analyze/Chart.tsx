@@ -18,14 +18,6 @@ export function Chart({ chartData, chartColor }: { chartData: { pole: string; va
     } satisfies ChartConfig
 
     return (
-        // <ChartContainer
-        //     config={chartConfig}
-        //     className="w-[60%] min-h-[20px] max-h-[400px] [&_.recharts-wrapper]:overflow-visible"
-        // >
-        //     <RadarChart
-        //         data={chartData}
-        //         margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-        //     >
         <ChartContainer
             config={chartConfig}
             className="w-full min-h-[20px] max-h-[300px] [&_.recharts-wrapper]:overflow-visible [&_.recharts-wrapper]:!w-full [&_.recharts-surface]:!w-full"
