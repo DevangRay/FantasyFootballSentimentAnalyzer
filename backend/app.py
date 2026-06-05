@@ -17,7 +17,7 @@ CORS(app, origins=[
 def hello_world():
     return "<p>Hello, World!</p>"
 
-# DEFAULT ANALYSIS ENDPOINT
+# SYNCHRONOUS ANALYSIS ENDPOINT
 @app.route("/analyze", methods=['POST'])
 def analyze():
     print("analyze endpoint hit")
