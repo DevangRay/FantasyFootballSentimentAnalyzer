@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, Response, stream_with_context
 import json
+import datetime
 import time
 import os
 from flask_cors import CORS
@@ -149,9 +150,16 @@ def get_roster_meta():
     path = './resources/nfl_roster.json'
     with open(path, 'r') as f:
         roster = json.load(f)
+    
+    modification_time = os.path.getmtime(path)
+    local_datetime = datetime.datetime.fromtimestamp(modification_time)
+    readable_time = local_datetime.strftime('%Y-%m-%d %H:%M:%S')
+        
     return jsonify({
         'player_count': len(roster),
-        'last_updated': os.path.getmtime(path)
+        'last_updated': readable_time,
+        'local_datetime': local_datetime,
+        'modification_time': modification_time
     })
 
 
