@@ -56,7 +56,6 @@ def process_transcript(podcast_transcript_filepath=None, podcast_transcript_text
     
 def match_players_to_roster(identified_names: list[dict]) -> dict:
     # save list of real NFL players to nfl_player_roster
-    # TODO: set up a cron job to run get_nfl_players()
     # nfl.get_nfl_players()
     nfl_player_roster = {}
     with open("./resources/nfl_roster.json", "r") as f:
