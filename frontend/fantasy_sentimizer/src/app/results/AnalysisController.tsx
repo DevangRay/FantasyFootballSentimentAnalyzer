@@ -245,7 +245,7 @@ export default function AnalysisController({ transcriptText }: { transcriptText:
                                             key={loadingMessage}
                                             className="text-xs text-muted-foreground block animate-message-in"
                                         >
-                                            {loadingMessage ? loadingMessage + "..." : "No loading message..."}
+                                            {loadingMessage ? loadingMessage : "No loading message..."}
                                         </span>
                                     </div>
 
