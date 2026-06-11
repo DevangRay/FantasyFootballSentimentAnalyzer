@@ -84,4 +84,5 @@ def analyze_sentiment(final_player_object: dict, raw_sentences: list[str]):
             "player_team": final_player_object[player]['occurrence_array'][0]['player_team'],
         }
 
+        print(f'Analyzed {player} as {player_result["sentiment_consensus"]} ({i + 1}/{total})...')
         yield player, player_result, i + 1, total
