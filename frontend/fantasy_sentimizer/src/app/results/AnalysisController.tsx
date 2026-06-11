@@ -240,7 +240,7 @@ export default function AnalysisController({ transcriptText }: { transcriptText:
                         <div className="w-fit sm:w-full max-w-sm flex h-[80vh] flex-col justify-center">
                             <div className="w-full max-w-sm flex flex-col py-4">
                                 <div className="flex gap-10 justify-between items-center mb-1">
-                                    <div className="h-5 overflow-hidden relative" style={{ perspective: '300px' }}>
+                                    <div className="flex-1 min-w-0 h-5 overflow-hidden relative" style={{ perspective: '300px' }}>
                                         <span
                                             key={loadingMessage}
                                             className="text-xs text-muted-foreground block animate-message-in"
