@@ -55,30 +55,30 @@ def analyze_stream():
     def generate():
         try:
             # Step 1
-            yield f"data: {json.dumps({'progress': 10, 'message': 'Processing transcript...'})}\n\n"
+            yield f"data: {json.dumps({'progress': 10, 'message': 'Processing transcript'})}\n\n"
             identified_names, raw_sentences = sentiment_analyzer.process_transcript(podcast_transcript_text=transcript)
             print("Total Identified Names:", len(identified_names))
 
             # Step 2
-            yield f"data: {json.dumps({'progress': 25, 'message': 'Identifying NFL players...'})}\n\n"
+            yield f"data: {json.dumps({'progress': 25, 'message': 'Identifying NFL players'})}\n\n"
             final_player_object = sentiment_analyzer.match_players_to_roster(identified_names)
             print("Total Unique Players Mentioned:", len(final_player_object))
 
             # Step 3
             # yield per-player so the stream stays alive during inference
-            yield f"data: {json.dumps({'progress': 50, 'message': 'Running sentiment analysis...'})}\n\n"
+            yield f"data: {json.dumps({'progress': 50, 'message': 'Running sentiment analysis'})}\n\n"
             player_sentiments = {}
             for player_name, player_result, current, total in nli.analyze_sentiment(final_player_object, raw_sentences):
                 player_sentiments[player_name] = player_result
                 pct = 50 + int((current / total) * 48)  # 50% to 98%
-                yield f"data: {json.dumps({'progress': pct, 'message': f'Analyzing {player_name} ({current}/{total})...'})}\n\n"
+                yield f"data: {json.dumps({'progress': pct, 'message': f'Analyzing {player_name} ({current}/{total})'})}\n\n"
             print("Total Players with Sentiment Analysis:", len(player_sentiments))
 
             # Step 4
             # yield f"data: {json.dumps({'progress': 90, 'message': 'Aggregating consensus scores...'})}\n\n"
 
             # Done — send final payload
-            print("Sending final results...")
+            print("Sending final results")
             yield f"data: {json.dumps({'progress': 100, 'message': 'Complete', 'result': player_sentiments})}\n\n"
         except GeneratorExit:
             print("Client disconnected, stopping stream")
