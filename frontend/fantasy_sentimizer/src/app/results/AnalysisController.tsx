@@ -40,7 +40,7 @@ export default function AnalysisController({ transcriptText }: { transcriptText:
         const controller = new AbortController();
 
         // // DEBUG
-        // setLoading(true);
+        setLoading(true);
         // const players = mockCallAPI();
         // const sortedPlayers = sortPlayersByStatusAndMentions(players);
         // setSortedPlayers(sortedPlayers);
