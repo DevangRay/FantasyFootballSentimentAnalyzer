@@ -1,6 +1,6 @@
 import { SentimentObject } from "@/app/types/analyze-types";
 
-const API_BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+const API_BACKEND_BASE_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000').replace(/\/$/, '');
 
 export async function performAnalysisStream(
     text: string,
