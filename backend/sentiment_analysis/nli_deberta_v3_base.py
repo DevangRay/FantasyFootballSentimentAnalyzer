@@ -8,8 +8,8 @@ model = CrossEncoder('cross-encoder/nli-deberta-v3-small')
 
 CANDIDATE_LABELS = ["positive", "negative", "neutral"]
 MAX_PLAYERS = 50
-MAX_SENTENCES_PER_PLAYER = 5
-BATCH_SIZE = 16
+MAX_SENTENCES_PER_PLAYER = 10
+BATCH_SIZE = 32
 
 def _make_hypothesis(player, label):
     if label == "positive":
@@ -20,53 +20,51 @@ def _make_hypothesis(player, label):
         return f"{player} will perform as average or neutrally impact fantasy points."
 
 def analyze_sentiment(final_player_object: dict, raw_sentences: list[str]):
-    # Cap at MAX_PLAYERS sorted by mention count to bound memory and time
+    """
+    Iteratively yields (player_name, player_result, current_index, total) for each player so
+    callers can emit SSE heartbeats between players and prevent proxy timeouts.
+    Each player is inferred independently; total pairs per player is at most
+    MAX_SENTENCES_PER_PLAYER * len(CANDIDATE_LABELS) = 30, so under BATCH_SIZE.
+    """
     sorted_players = sorted(
         final_player_object.keys(),
         key=lambda p: len(final_player_object[p]['mentioned_sentence_indexes']),
         reverse=True
     )[:MAX_PLAYERS]
 
-    # Build context windows per player, capped per player
-    player_texts = {}
-    for player in sorted_players:
+    total = len(sorted_players)
+    entailment_col = model.config.label2id['entailment']
+    num_labels = len(CANDIDATE_LABELS)
+
+    for i, player in enumerate(sorted_players):
+        # build context windows
         indexes = list(final_player_object[player]['mentioned_sentence_indexes'])[:MAX_SENTENCES_PER_PLAYER]
-        player_texts[player] = [
+        texts = [
             context_window.get_context_window(idx, raw_sentences, window_size=2)
             for idx in indexes
         ]
 
-    # Flatten all (text, hypothesis) pairs into one list, track per-player offsets
-    all_pairs = []
-    player_offsets = {}
-    for player in sorted_players:
-        start = len(all_pairs)
-        for text in player_texts[player]:
-            for label in CANDIDATE_LABELS:
-                all_pairs.append((text, _make_hypothesis(player, label)))
-        player_offsets[player] = (start, len(player_texts[player]))
+        if not texts:
+            continue
 
-    if not all_pairs:
-        return {}
+        pairs = [
+            (text, _make_hypothesis(player, label))
+            for text in texts
+            for label in CANDIDATE_LABELS
+        ]
 
-    # Single batched inference call instead of one call per text snippet
-    all_scores = model.predict(all_pairs, batch_size=BATCH_SIZE)
-    entailment_col = model.config.label2id['entailment']
+        scores = model.predict(pairs, batch_size=BATCH_SIZE)
 
-    sentiment_object = {}
-    num_labels = len(CANDIDATE_LABELS)
-
-    for player in sorted_players:
-        start, text_count = player_offsets[player]
         results = []
-
-        for i in range(text_count):
-            pair_start = start + i * num_labels
-            scores_slice = all_scores[pair_start:pair_start + num_labels]
+        for j in range(len(texts)):
+            pair_start = j * num_labels
+            # isolate the score for each sentence
+            scores_slice = scores[pair_start:pair_start + num_labels]
             entailment_scores = scores_slice[:, entailment_col]
+            # get best label
             best_idx = int(np.argmax(entailment_scores))
             results.append({
-                "text": player_texts[player][i],
+                "text": texts[j],
                 "scores": {label: float(score) for label, score in zip(CANDIDATE_LABELS, entailment_scores)},
                 "best_label": CANDIDATE_LABELS[best_idx]
             })
@@ -75,7 +73,7 @@ def analyze_sentiment(final_player_object: dict, raw_sentences: list[str]):
         average_scores = np.mean(scores_matrix, axis=0)
         label_array = [CANDIDATE_LABELS[int(np.argmax(s))] for s in scores_matrix]
 
-        sentiment_object[player] = {
+        player_result = {
             "sentiment_consensus": {label: float(score) for label, score in zip(CANDIDATE_LABELS, average_scores)},
             "average_label": CANDIDATE_LABELS[int(np.argmax(average_scores))],
             "most_frequent_label": statistics.mode(label_array),
@@ -86,4 +84,4 @@ def analyze_sentiment(final_player_object: dict, raw_sentences: list[str]):
             "player_team": final_player_object[player]['occurrence_array'][0]['player_team'],
         }
 
-    return sentiment_object
+        yield player, player_result, i + 1, total

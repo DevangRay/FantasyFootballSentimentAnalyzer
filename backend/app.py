@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, Response, stream_with_context
 import json
 import datetime
-import time
+# import time
 import os
 from flask_cors import CORS
 import requests
@@ -65,15 +65,17 @@ def analyze_stream():
             print("Total Unique Players Mentioned:", len(final_player_object))
 
             # Step 3
+            # yield per-player so the stream stays alive during inference
             yield f"data: {json.dumps({'progress': 50, 'message': 'Running sentiment analysis...'})}\n\n"
-            player_sentiments = nli.analyze_sentiment(final_player_object, raw_sentences)
+            player_sentiments = {}
+            for player_name, player_result, current, total in nli.analyze_sentiment(final_player_object, raw_sentences):
+                player_sentiments[player_name] = player_result
+                pct = 50 + int((current / total) * 48)  # 50% to 98%
+                yield f"data: {json.dumps({'progress': pct, 'message': f'Analyzing {player_name} ({current}/{total})...'})}\n\n"
             print("Total Players with Sentiment Analysis:", len(player_sentiments))
 
             # Step 4
-            yield f"data: {json.dumps({'progress': 90, 'message': 'Aggregating consensus scores...'})}\n\n"
-            print("Starting delay...")
-            time.sleep(2)
-            print("Delay completed after 2 seconds.")
+            # yield f"data: {json.dumps({'progress': 90, 'message': 'Aggregating consensus scores...'})}\n\n"
 
             # Done — send final payload
             print("Sending final results...")
