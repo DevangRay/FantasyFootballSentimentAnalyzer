@@ -1,9 +1,25 @@
+import torch
 from sentence_transformers import CrossEncoder
 import numpy as np
 import statistics
 import utils.context_window as context_window
 
-# nli-deberta-v3-small: ~180MB vs ~700MB for base — fits within Railway's 2GB limit
+# Measured RSS delta from loading this model: ~460MB (fp32), not the ~150-180MB
+# estimated when this was switched from nli-deberta-v3-base. Railway's actual
+# allocation is 8 vCPU / 8GB, so headroom isn't as tight as originally assumed —
+# revisit the base-vs-small tradeoff if accuracy matters more than raw speed here.
+
+# This app runs a single gunicorn worker process (see Dockerfile/Procfile) and isn't
+# expected to serve concurrent requests, so there's no competing call to share cores
+# with. Pin this to the provisioned vCPU count explicitly rather than rely on
+# auto-detection, which can misreport the real quota inside a container — this lets
+# every model.predict() call split its internal matmuls across all 8 cores, which is
+# what actually shortens wall-clock time per request and keeps it under gunicorn's
+# --timeout. If concurrent traffic becomes real later, revisit this: multiple
+# simultaneous calls each claiming 8 threads would oversubscribe and should instead
+# drop this value and add worker processes/threads for concurrency.
+torch.set_num_threads(8)
+
 model = CrossEncoder('cross-encoder/nli-deberta-v3-small')
 
 CANDIDATE_LABELS = ["positive", "negative", "neutral"]
@@ -53,7 +69,7 @@ def _aggregate_player_result(final_player_object, player, texts, entailment_scor
 def analyze_sentiment(final_player_object: dict, raw_sentences: list[str]):
     """
     Yields (player_name, player_result, current_index, total) so callers can emit SSE
-    heartbeats between players and prevent proxy timeouts.
+    heartbeats between players.
 
     Internally, players are grouped into chunks so that each chunk's combined pair count
     stays near BATCH_SIZE, and one model.predict() call scores the whole chunk at once —
