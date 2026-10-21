@@ -154,3 +154,40 @@ def analyze(transcript: str) -> dict:
     print("Total Players with Sentiment Analysis:", len(player_sentiments))
         
     return player_sentiments
+
+
+def main():
+    # # Transcript section
+    # podcastAudioFileName = "rookie_te_breakout_incoming!_top_12_tes_for_fantasy_football_2025.wav"
+    # print("getting transcript with faster-whisper...")
+    # # transcription_results = transcript.getTranscriptFromAudio(f"../resources/{podcastAudioFileName}")
+    # # clean_transcription_results = transcription_results["text"].strip('"').strip()
+    # transcription_results = transcript.getFasterTranscriptFromAudio(f"../resources/{podcastAudioFileName}")
+    # print(transcription_results)
+    
+    # TODO: sentiment analysis section
+        # what happens if reviews are 1 positive and 1 negative?
+        # should be waited based on extremeness of average (100% positive, 50% negative => positive)
+
+        # if only first_name found, and first_name is among previously identified fullel_names, replace first_name with full_name in sentence
+    transcipt_file_path = "../resources/transcript.txt"
+    identified_names, raw_sentences = process_transcript(transcipt_file_path)
+    print("Total Identified Names:", len(identified_names))
+    with open("../outputs/identified_names/nli_identified_names.json", "w", encoding="utf-8") as f:
+        json.dump(identified_names, f, ensure_ascii=False, indent=2)
+    
+    final_player_object = match_players_to_roster(identified_names)
+    print("Total Unique Players Mentioned:", len(final_player_object))
+    # print(final_player_object)
+    
+    player_sentiments = nli.analyze_sentiment(final_player_object, raw_sentences)
+    print(player_sentiments)
+    print("Total Players with Sentiment Analysis:", len(player_sentiments))
+    
+    with open("../outputs/only_matches/nli/player_sentiments.json", "w", encoding="utf-8") as f:
+        json.dump(player_sentiments, f, ensure_ascii=False, indent=2)
+    
+    return player_sentiments
+        
+if __name__ == "__main__":
+    main()
