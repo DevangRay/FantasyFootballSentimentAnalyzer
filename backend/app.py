@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request, Response, stream_with_context
 import json
-import time
+import datetime
+# import time
+import os
 from flask_cors import CORS
 import requests
 
@@ -17,7 +19,7 @@ CORS(app, origins=[
 def hello_world():
     return "<p>Hello, World!</p>"
 
-# DEFAULT ANALYSIS ENDPOINT
+# SYNCHRONOUS ANALYSIS ENDPOINT
 @app.route("/analyze", methods=['POST'])
 def analyze():
     print("analyze endpoint hit")
@@ -51,30 +53,35 @@ def analyze_stream():
         return jsonify({"error": "No transcript provided"}), 469
 
     def generate():
-        # Step 1
-        yield f"data: {json.dumps({'progress': 10, 'message': 'Processing transcript...'})}\n\n"
-        identified_names, raw_sentences = sentiment_analyzer.process_transcript(podcast_transcript_text=transcript)
-        print("Total Identified Names:", len(identified_names))
+        try:
+            # Step 1
+            yield f"data: {json.dumps({'progress': 10, 'message': 'Processing transcript...'})}\n\n"
+            identified_names, raw_sentences = sentiment_analyzer.process_transcript(podcast_transcript_text=transcript)
+            print("Total Identified Names:", len(identified_names))
 
-        # Step 2
-        yield f"data: {json.dumps({'progress': 25, 'message': 'Identifying NFL players...'})}\n\n"
-        final_player_object = sentiment_analyzer.match_players_to_roster(identified_names)
-        print("Total Unique Players Mentioned:", len(final_player_object))
+            # Step 2
+            yield f"data: {json.dumps({'progress': 25, 'message': 'Identifying NFL players...'})}\n\n"
+            final_player_object = sentiment_analyzer.match_players_to_roster(identified_names)
+            print("Total Unique Players Mentioned:", len(final_player_object))
 
-        # Step 3
-        yield f"data: {json.dumps({'progress': 50, 'message': 'Running sentiment analysis...'})}\n\n"
-        player_sentiments = nli.analyze_sentiment(final_player_object, raw_sentences)
-        print("Total Players with Sentiment Analysis:", len(player_sentiments))
-        
-        # Step 4
-        yield f"data: {json.dumps({'progress': 90, 'message': 'Aggregating consensus scores...'})}\n\n"
-        print("Starting delay...")
-        time.sleep(2)
-        print("Delay completed after 2 seconds.")
-        
-        # Done — send final payload
-        print("Sending final results...")
-        yield f"data: {json.dumps({'progress': 100, 'message': 'Complete', 'result': player_sentiments})}\n\n"
+            # Step 3
+            # yield per-player so the stream stays alive during inference
+            yield f"data: {json.dumps({'progress': 50, 'message': 'Running sentiment analysis...'})}\n\n"
+            player_sentiments = {}
+            for player_name, player_result, current, total in nli.analyze_sentiment(final_player_object, raw_sentences):
+                player_sentiments[player_name] = player_result
+                pct = 50 + int((current / total) * 48)  # 50% to 98%
+                yield f"data: {json.dumps({'progress': pct, 'message': f'Analyzing {player_name} ({current}/{total})...'})}\n\n"
+            print("Total Players with Sentiment Analysis:", len(player_sentiments))
+
+            # Step 4
+            # yield f"data: {json.dumps({'progress': 90, 'message': 'Aggregating consensus scores...'})}\n\n"
+
+            # Done — send final payload
+            print("Sending final results")
+            yield f"data: {json.dumps({'progress': 100, 'message': 'Complete', 'result': player_sentiments})}\n\n"
+        except GeneratorExit:
+            print("Client disconnected, stopping stream")
 
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
@@ -95,12 +102,6 @@ def analyzeSetup():
     
     return jsonify(response)
 
-# STATIC EXAMPLE OF ANALYSIS
-@app.route("/analyze/example", methods=['GET'])
-def analyzeExample():
-    results = sentiment_analyzer.main()
-    return jsonify(results)
-
 # GET NFL ATHLETES 
 @app.route('/nfl/athletes', methods=['GET'])
 def get_nfl_athletes():
@@ -112,7 +113,6 @@ def get_nfl_athletes():
         data = response.json()
         print("data received")
         
-        print(data)
         athletes_array = data['athletes']
         
         output_array = {}
@@ -124,20 +124,9 @@ def get_nfl_athletes():
             print(athlete_object)
             
             output_array[athlete['displayName']] = athlete_object
-        print("output_array constructed")
-        # output_array = []
-        # for athlete in athletes_array:
-        #     athlete_object = {
-        #         'id': athlete['id'],
-        #         'name': athlete['displayName'],
-        #         'team': athlete['team']['displayName']
-        #     }
-        #     print(athlete_object)
-            
-        #     output_array.append(athlete_object)
-        print("writing to nfl_roster.json")
+        print("output_array constructed. writing to nfl_roster.json")
+        
         with open('./resources/nfl_roster.json', 'w') as f:
-            import json
             json.dump(output_array, f, ensure_ascii=False, indent=2)
         
         print("returning output_array")
@@ -157,6 +146,22 @@ def get_player_photo(player_id):
         return jsonify({"photo_url": url})
     except requests.RequestException as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/nfl/roster/meta', methods=['GET'])
+def get_roster_meta():
+    path = './resources/nfl_roster.json'
+    with open(path, 'r') as f:
+        roster = json.load(f)
+    
+    modification_time = os.path.getmtime(path)
+    local_datetime = datetime.datetime.fromtimestamp(modification_time)
+    readable_time = local_datetime.strftime('%Y-%m-%d %H:%M:%S %Z')
+        
+    return jsonify({
+        'player_count': len(roster),
+        'last_updated': readable_time,
+    })
+
 
 if __name__ == '__main__':
     app.run(debug=True)

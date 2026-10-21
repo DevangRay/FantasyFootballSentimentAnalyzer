@@ -26,7 +26,7 @@ const UploadButton = React.forwardRef<
 
 UploadButton.displayName = "UploadButton";
 
-export default function EmptyState({ error, setSubmittedText }: { error: string | null, setSubmittedText: React.Dispatch<React.SetStateAction<string | null>> }) {
+export default function EmptyState({ error, submit }: { error: string | null, submit: (text: string) => void }) {
     return (
         <Empty className="h-full">
             <EmptyHeader>
@@ -56,7 +56,7 @@ export default function EmptyState({ error, setSubmittedText }: { error: string 
                 </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
-                <FileUploadDialog setSubmittedText={setSubmittedText} DialogButton={UploadButton} />
+                <FileUploadDialog onSubmit={submit} DialogButton={UploadButton} />
                 <Button>
                     <a href="/" className="text-white-700 hover:text-white-900">
                         Home

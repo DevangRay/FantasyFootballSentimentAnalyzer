@@ -13,9 +13,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { AlignRight, UserRoundCheck, UserRoundCog } from "lucide-react";
 
-import { ImageWithFallback } from "@/app/components/ImageWithBackup";
-import { Chart } from "@/app/analyze/components/Chart";
-import { OccurrenceCarousel } from "@/app/analyze/components/OccurrenceCarousel";
+import { ImageWithFallback } from "@/app/results/analyze/ImageWithBackup";
+import { Chart } from "@/app/results/analyze/Chart";
+import { OccurrenceCarousel } from "@/app/results/analyze/OccurrenceCarousel";
 import { MatchingStatus, MatchingStatusConst } from "@/app/types/analyze-types";
 
 export default function PlayerCard({ player, analysisResult, showSidebar, onOpenDrawer }: { player: string, analysisResult: Record<string, any>, showSidebar: boolean, onOpenDrawer?: () => void }) {
@@ -76,8 +76,6 @@ export default function PlayerCard({ player, analysisResult, showSidebar, onOpen
                         </div>
                     </CardTitle>
 
-                    {/* <span>{renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)}</span> */}
-                    {/* <CardDescription>Player Matching: {analysisResult[player].status} | Original Name: {analysisResult[player].transcript_name}</CardDescription> */}
                     {showSidebar && (
                         <CardAction>
                             <Button onClick={onOpenDrawer} variant="outline" size="sm" className="cursor-pointer">
@@ -95,8 +93,6 @@ export default function PlayerCard({ player, analysisResult, showSidebar, onOpen
                                     <ImageWithFallback
                                         src={`https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${analysisResult[player].player_id}.png`}
                                         alt={`${player}'s Profile Photo`}
-                                        // width={200}
-                                        // height={200}
                                         fill
                                         sizes="(max-width: 640px) 160px, 200px"
                                         style={{ objectFit: 'contain' }}
@@ -143,12 +139,6 @@ export default function PlayerCard({ player, analysisResult, showSidebar, onOpen
                                 occurrenceArray={analysisResult[player].detailed_sentiment}
                                 player={player}
                             />
-                            {/* <>
-                        <h4>Ratings:</h4>
-                        <h4>Negative {analysisResult[player].sentiment_consensus.negative}</h4>
-                        <h4>Positive {analysisResult[player].sentiment_consensus.positive}</h4>
-                        <h4>Neutral {analysisResult[player].sentiment_consensus.neutral}</h4>
-                    </> */}
                         </CardFooter>
                     )
                 }
