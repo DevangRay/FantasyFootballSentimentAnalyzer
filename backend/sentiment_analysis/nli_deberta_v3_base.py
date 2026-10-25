@@ -23,7 +23,7 @@ torch.set_num_threads(8)
 model = CrossEncoder('cross-encoder/nli-deberta-v3-small')
 
 CANDIDATE_LABELS = ["positive", "negative", "neutral"]
-MAX_PLAYERS = 50
+MAX_PLAYERS = 20
 MAX_SENTENCES_PER_PLAYER = 20
 BATCH_SIZE = 64
 ENTAILMENT_COL = model.config.label2id['entailment']

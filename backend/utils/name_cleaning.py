@@ -54,8 +54,46 @@ nickname_mappings = {
         "rasheed rice": "Rashee Rice",
         "rashid rice": "Rashee Rice",
         "bejan": "Bijan Robinson",
-        
+        "bjan robinson": "Bijan Robinson",
+        "bejian robinson": "Bijan Robinson",
+        "warren": "Tyler Warren",
+        "tua": "Tua Tagovailoa",
+        "loveland": "Colston Loveland",
+        "kyle pitts": "Kyle Pitts Sr.",
+        "harold fannin": "Harold Fannin Jr.",
+        "harold fannon": "Harold Fannin Jr.",
+        "michael pitman": "Michael Pittman",
+        "ted hurst": "Ted Hurst III",
+        "marv": "Marvin Harrison Jr.",
+        "mendoza": "Fernando Mendoza",
+        "brian dable": "Brian Daboll",
+        "tyler lindendomb": "Tyler Linderbaum",
+        "pennix": "Michael Penix Jr.",
+        "tess johnson": "Tez Johnson",
+        "waddles": "Jaylen Waddle",
+        "brock purie": "Brock Purdy",
+        "jackson dart": "Jaxon Dart",
+        "tyler shuck": "Tyler Shough",
+        "bone knicks": "Bo Nix",
+        "jordan tyson": "Jordyn Tyson",
+        "bjan robinson's": "Bijan Robinson"
     }
+
+"""
+>> Um whenever AJ Brown or Dvonte Smith has missed time, he's been a huge beneficiary on the offense. AJ Brown is gone. >> He's going to miss some time for the >> Kai Lemon has had two hamstring injuries
+Bowowers 
+Jir Gibbs, Alman Ron St. Brown,
+Sutton 
+Clint Kubak he was Lafle might be a good you know they're both offensive minded head coaches but Kubak Jacobe Brc 
+Lovelin
+Dallas Goddard
+Brock Pury
+Fannon 
+Ninjoku 
+Kyle Pitts
+Naylor 
+"""
+
 
 import re
 
@@ -68,7 +106,8 @@ def name_is_valid(name: str) -> bool:
         "god", 
         "taylor swift",
         "nerd herd", "nerd30",
-        "matt miller", "chalky chalk",
+        "matt miller", "chalky chalk", 
+        "jason", "andy", "mike", "jason moore", "andy holloway", "mike wright"
     ]
     
     return not name.lower() in unwanted_names
