@@ -2,7 +2,7 @@
 
 A full-stack web app that runs sentiment analysis on fantasy football podcast transcripts, telling you how the experts really feel about each player, so you can make smarter lineup decisions.
 
-**Live:** [fantasy-football-sentiment-analyzer.vercel.app](https://fantasy-football-sentiment-analyzer.vercel.app)
+**Live:** [https://ff-sentimizer.vercel.app](https://ff-sentimizer.vercel.app)
 
 ---
 

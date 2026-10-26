@@ -14,7 +14,7 @@ import utils.player_resolver as player_resolver
 app = Flask(__name__)
 CORS(app, origins=[
     "http://localhost:3000",
-    "https://fantasy-football-sentiment-analyzer.vercel.app",
+    "https://ff-sentimizer.vercel.app",
 ])
 
 @app.route("/")
