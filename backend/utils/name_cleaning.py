@@ -1,128 +1,121 @@
-nickname_mappings = {
-        "joker": "Evan Engram",
-        "evan ingram": "Evan Engram",
-        "enjoku": "David Njoku",
-        "david and joku": "David Njoku",
-        "david and david njoku": "David Njoku",
-        "injoku": "David Njoku",
-        "andoku": "David Njoku",
-        "jook": "David Njoku",
-        "jooku": "David Njoku",
-        "jookus": "David Njoku",
-        "craft": "Tucker Kraft",
-        "doug craft": "Tucker Kraft",
-        "tuckercraft": "Tucker Kraft",
-        "daltton concaid": "Dalton Kincaid",
-        "dolan concade": "Dalton Kincaid",
-        "dinc concaid": "Dalton Kincaid",
-        "dan concade": "Dalton Kincaid",
-        "brock bowowers": "Brock Bowers",
-        "brock b": "Brock Bowers",
-        "brock bower": "Brock Bowers",
-        "bower's": "Brock Bowers",
-        "george kd": "George Kittle",
-        "kd": "George Kittle",
-        "hawinson": "T.J. Hockenson",
-        "hinson": "T.J. Hockenson",
-        "hockson": "T.J. Hockenson",
-        "t.j hawinson": "T.J. Hockenson",
-        "t.j. hawinson": "T.J. Hockenson",
-        "tj hawinson": "T.J. Hockenson",
-        "hot tockinson": "T.J. Hockenson",
-        "kelsey": "Travis Kelce",
-        "kyle pittz": "Kyle Pitts",
-        "leaporta": "Sam LaPorta",
-        "leapora": "Sam LaPorta",
-        "sam laora": "Sam LaPorta",
-        "sam lapoora": "Sam LaPorta",
-        "sam laapora": "Sam LaPorta",
-        "sam leaport": "Sam LaPorta",
-        "sam laaporta": "Sam LaPorta",
-        "trey mc bry": "Trey McBride",
-        "mcbride": "Trey McBride",
-        "tyler war": "Tyler Warren",
-        "zach z": "Zach Ertz",
-        "zack z": "Zach Ertz",
-        "zacks": "Zach Ertz",
-        "coleston love": "Colston Loveland",
-        "sonat": "Ben Sinnott",
-        "flaco": "Joe Flacco",
-        "dylan gabriel": "Dillon Gabriel",
-        "judy": "Jerry Jeudy",
-        "josh ds": "Josh Downs",
-        "cmc": "Christian McCaffrey",
-        "rasheed rice": "Rashee Rice",
-        "rashid rice": "Rashee Rice",
-        "bejan": "Bijan Robinson",
-        "bjan robinson": "Bijan Robinson",
-        "bejian robinson": "Bijan Robinson",
-        "warren": "Tyler Warren",
-        "tua": "Tua Tagovailoa",
-        "loveland": "Colston Loveland",
-        "kyle pitts": "Kyle Pitts Sr.",
-        "harold fannin": "Harold Fannin Jr.",
-        "harold fannon": "Harold Fannin Jr.",
-        "michael pitman": "Michael Pittman",
-        "ted hurst": "Ted Hurst III",
-        "marv": "Marvin Harrison Jr.",
-        "mendoza": "Fernando Mendoza",
-        "brian dable": "Brian Daboll",
-        "tyler lindendomb": "Tyler Linderbaum",
-        "pennix": "Michael Penix Jr.",
-        "tess johnson": "Tez Johnson",
-        "waddles": "Jaylen Waddle",
-        "brock purie": "Brock Purdy",
-        "jackson dart": "Jaxon Dart",
-        "tyler shuck": "Tyler Shough",
-        "bone knicks": "Bo Nix",
-        "jordan tyson": "Jordyn Tyson",
-        "bjan robinson's": "Bijan Robinson"
-    }
+"""Name validation, plus the residue of aliases that no derived rule can reach.
 
-"""
->> Um whenever AJ Brown or Dvonte Smith has missed time, he's been a huge beneficiary on the offense. AJ Brown is gone. >> He's going to miss some time for the >> Kai Lemon has had two hamstring injuries
-Bowowers 
-Jir Gibbs, Alman Ron St. Brown,
-Sutton 
-Clint Kubak he was Lafle might be a good you know they're both offensive minded head coaches but Kubak Jacobe Brc 
-Lovelin
-Dallas Goddard
-Brock Pury
-Fannon 
-Ninjoku 
-Kyle Pitts
-Naylor 
+Most spoken and mis-transcribed names are now resolved by rules built from the roster
+itself (see player_resolver.py), so this file no longer carries a per-podcast lookup
+table. What is left are nicknames with no phonetic or structural relationship to the
+player's real name, which are irreducibly a matter of knowing the show.
 """
 
-
+import functools
 import re
 
+# Aliases the derived rules get wrong or miss, verified against the development
+# transcripts by tests/test_player_resolver.py. Each one is here because it is either a
+# true nickname (no sound or spelling in common with the real name) or a transcription
+# garble that collides with a different real player.
+MANUAL_ALIASES = {
+    # true nicknames: nothing to derive from
+    "joker": "Evan Engram",
+    # "kd": "George Kittle",
+    "zach z": "Zach Ertz",
+    "zack z": "Zach Ertz",
+    "zacks": "Zach Ertz",            # else Zach Charbonnet, on the shared first name
+    # transcription garbles that sound more like someone else than like the real player
+    "hawinson": "T.J. Hockenson",    # else Jameis Winston
+    "hinson": "T.J. Hockenson",      # else Xavier Hutchinson
+    "andoku": "David Njoku",
+    "david and david njoku": "David Njoku",
+    "dinc concaid": "Dalton Kincaid",
+    "bone knicks": "Bo Nix",
+    "tyler shuck": "Tyler Shough",
+    # "tyler lindendomb" -> Tyler Linderbaum used to live here; he is a center, so the
+    # roster no longer caches him and the alias has nothing to point at. It only ever
+    # existed to route a garble onto a player who could not be scored anyway.
+}
+
+# Proper nouns spaCy tags as PERSON that are not names of real people at all: segment
+# names, the occasional deity, bare first names too common to mean anyone in particular.
+# Matched on the whole name, so "Matt Gay" still passes.
+UNWANTED_NAMES = {
+    "rich", "dodson", "dotson",
+    "matt", "o'hara",
+    "g price", "g", "price",
+    "garrett",
+    "god",
+    "taylor swift",
+    "nerd herd", "nerd30",
+    "chalky chalk",
+    "jason", "andy", "mike",
+}
+
+# Real people who appear in fantasy podcasts but aren't players. These are handed to the
+# resolver as decoys rather than filtered by exact match, because a transcript produces
+# "Kell Moore" rather than "Kellen Moore" and an exact blocklist would miss it. Head
+# coaches are fetched live by /nfl/athletes into nfl_non_players.json; what stays here is
+# the shows' own hosts, which no API knows about.
+NON_PLAYER_NAMES = {
+    "Rich Dodson",
+    "Matt O'Hara",
+    "Matt Miller",
+    "Jason Moore",
+    "Andy Holloway",
+    "Mike Wright",
+}
+
+
 def name_is_valid(name: str) -> bool:
-    unwanted_names = [
-        "rich dodson", "rich", "dodson", "dotson",
-        "matt o'hara", "matt", "o'hara", "Matt O'Hara", 
-        "g price", "g", "price",
-        "garrett", 
-        "god", 
-        "taylor swift",
-        "nerd herd", "nerd30",
-        "matt miller", "chalky chalk", 
-        "jason", "andy", "mike", "jason moore", "andy holloway", "mike wright"
-    ]
-    
-    return not name.lower() in unwanted_names
+    """False for proper nouns that are not NFL players."""
+    return name.strip().lower() not in UNWANTED_NAMES
 
-def replace_nickname_in_sentence(sentence: str) -> str:
-    def replacer(match):
-        word = match.group(0)
-        replacement = nickname_mappings.get(word.lower())
-        return replacement
-    
-    pattern = r"\b(" + "|".join(map(re.escape, nickname_mappings.keys())) + r")\b"
-    return re.sub(pattern, replacer, sentence, flags=re.IGNORECASE)
 
-def replace_nickname_in_name(name: str) -> str:
-    if name.lower() in nickname_mappings:
-        return nickname_mappings[name.lower()]
-        
-    return name    
+@functools.lru_cache(maxsize=16)
+def _compile_rewrites(items: tuple) -> "re.Pattern":
+    """Build one pattern covering every heard form, longest first.
+
+    Each alternative carries its own guard against rewriting a name that is already
+    correct. Without them, "travis" -> "Travis Kelce" turns an existing "Travis Kelce"
+    into "Travis Kelce Kelce", and "bowers" -> "Brock Bowers" turns "Brock Bowers" into
+    "Brock Brock Bowers", corrupting the premise the model scores.
+    """
+    alternatives = []
+    # longest first, so "sam lapoora" wins over a bare "sam" that also needs rewriting
+    for heard, canonical in sorted(items, key=lambda kv: -len(kv[0])):
+        lowered = canonical.lower()
+        before = after = ""
+        # the heard form is the start of the canonical name: don't match when the rest of
+        # that name already follows
+        if lowered.startswith(heard) and len(lowered) > len(heard):
+            rest = canonical[len(heard):].strip()
+            if rest:
+                after = rf"(?!\s+{re.escape(rest.split()[0])}\b)"
+        # ...or the end of it: don't match when the earlier part already precedes
+        if lowered.endswith(heard) and len(lowered) > len(heard):
+            head = canonical[:len(canonical) - len(heard)].strip()
+            if head:
+                before = rf"(?<!{re.escape(head.split()[-1])}\s)"
+        alternatives.append(rf"{before}\b{re.escape(heard)}\b{after}")
+
+    return re.compile("|".join(alternatives), re.IGNORECASE)
+
+
+def rewrite_names_in_sentence(sentence: str, rewrites: dict) -> str:
+    """Replace heard names with their canonical roster spelling.
+
+    The NLI step scores a (premise, hypothesis) pair where the hypothesis names the
+    player explicitly, so the premise has to use the same spelling or the model is
+    comparing against a name that never appears in the text.
+
+    `rewrites` maps a heard surface form to a canonical name and is built per transcript
+    from what actually resolved, rather than from a global table. Forms that already match
+    their canonical spelling are included: they rewrite to themselves, but being in the
+    pattern lets them consume the longer span before a bare first name can match inside it.
+    """
+    if not rewrites:
+        return sentence
+
+    pattern = _compile_rewrites(tuple(sorted(rewrites.items())))
+
+    def replace(match):
+        return rewrites.get(match.group(0).lower(), match.group(0))
+
+    return pattern.sub(replace, sentence)

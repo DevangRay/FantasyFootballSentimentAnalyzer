@@ -39,30 +39,52 @@ def _make_hypothesis(player, label):
         return f"{player} will perform as average or neutrally impact fantasy points."
 
 
-def _aggregate_player_result(final_player_object, player, texts, entailment_scores):
+def _aggregate_player_result(final_player_object, player, texts, indexes, entailment_scores):
     """entailment_scores: shape (len(texts), NUM_LABELS) — this player's slice of a batched predict() call."""
+    occurrences = final_player_object[player]['occurrence_array']
+
+    # How each mention was matched varies within a player: "Brock Bowers" is a full-name
+    # match while "Bowowers" two paragraphs later is phonetic. Keyed by sentence index so
+    # each scored context window can carry the match that put it there.
+    by_index = {}
+    for occurrence in occurrences:
+        by_index.setdefault(occurrence['sentence_index'], occurrence)
+
     results = []
-    for text, scores_for_sentence in zip(texts, entailment_scores):
+    for text, sentence_index, scores_for_sentence in zip(texts, indexes, entailment_scores):
         best_idx = int(np.argmax(scores_for_sentence))
+        occurrence = by_index.get(sentence_index, {})
         results.append({
             "text": text,
             "scores": {label: float(score) for label, score in zip(CANDIDATE_LABELS, scores_for_sentence)},
-            "best_label": CANDIDATE_LABELS[best_idx]
+            "best_label": CANDIDATE_LABELS[best_idx],
+            # why this sentence was attributed to this player
+            "transcript_name": occurrence.get('transcript_name'),
+            "match_tier": occurrence.get('match_tier'),
+            "match_confidence": occurrence.get('confidence'),
+            "match_status": occurrence.get('status'),
         })
 
     scores_matrix = np.array([list(r["scores"].values()) for r in results])
     average_scores = np.mean(scores_matrix, axis=0)
     label_array = [CANDIDATE_LABELS[int(np.argmax(s))] for s in scores_matrix]
 
+    # The card's headline match quality is the best evidence for this player anywhere in
+    # the transcript, not whichever mention happened to be first: one solid full-name
+    # mention is what establishes the player is really being discussed.
+    best_match = max(occurrences, key=lambda o: o.get('confidence') or 0.0)
+
     return {
         "sentiment_consensus": {label: float(score) for label, score in zip(CANDIDATE_LABELS, average_scores)},
         "average_label": CANDIDATE_LABELS[int(np.argmax(average_scores))],
         "most_frequent_label": statistics.mode(label_array),
         "detailed_sentiment": results,
-        "status": final_player_object[player]['occurrence_array'][0]['status'],
-        "transcript_name": final_player_object[player]['occurrence_array'][0]['transcript_name'],
-        "player_id": final_player_object[player]['occurrence_array'][0]['player_id'],
-        "player_team": final_player_object[player]['occurrence_array'][0]['player_team'],
+        "status": best_match['status'],
+        "match_tier": best_match.get('match_tier'),
+        "match_confidence": best_match.get('confidence'),
+        "transcript_name": best_match['transcript_name'],
+        "player_id": best_match['player_id'],
+        "player_team": best_match['player_team'],
     }
 
 
@@ -85,11 +107,13 @@ def analyze_sentiment(final_player_object: dict, raw_sentences: list[str]):
     # Pre-build each player's context-window texts once; drop players with nothing to score
     # so `total` always matches the number of players we actually yield.
     player_texts = {}
+    player_indexes = {}
     for player in sorted_players:
         indexes = list(final_player_object[player]['mentioned_sentence_indexes'])[:MAX_SENTENCES_PER_PLAYER]
         texts = [context_window.get_context_window(idx, raw_sentences, window_size=2) for idx in indexes]
         if texts:
             player_texts[player] = texts
+            player_indexes[player] = indexes
 
     players = list(player_texts.keys())
     total = len(players)
@@ -126,7 +150,7 @@ def analyze_sentiment(final_player_object: dict, raw_sentences: list[str]):
             player_entailment = entailment_scores[row_cursor:row_cursor + n]
             row_cursor += n
 
-            player_result = _aggregate_player_result(final_player_object, player, texts, player_entailment)
+            player_result = _aggregate_player_result(final_player_object, player, texts, player_indexes[player], player_entailment)
 
             completed += 1
             print(f'Analyzed {player} as {player_result["sentiment_consensus"]} ({completed}/{total})...')

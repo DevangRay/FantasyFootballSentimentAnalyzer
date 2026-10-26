@@ -75,7 +75,7 @@ export default function InputWizard() {
     async function onDemoClick() {
         try {
             setFetchingDemo(true);
-            const response = await fetch("transcript.txt");
+            const response = await fetch("transcript-2026.txt");
             const text = await response.text();
             submit(text);
         } catch (e) {

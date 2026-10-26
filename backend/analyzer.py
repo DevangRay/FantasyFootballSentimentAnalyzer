@@ -1,10 +1,9 @@
 import spacy
-from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
 
 import json
 
 import utils.name_cleaning as name_cleaning
+import utils.player_resolver as player_resolver
 import sentiment_analysis.nli_deberta_v3_base as nli
 
 nlp = spacy.load("en_core_web_md")
@@ -36,121 +35,134 @@ def process_transcript(podcast_transcript_filepath=None, podcast_transcript_text
             for article in ["a ", "an ", "the "]:
                 if cleaned_name.lower().startswith(article):
                     cleaned_name = cleaned_name[len(article):]
-                    
-            # add name to identfied_names list
+
+            # names are kept as heard; resolving them to the roster happens in
+            # match_players_to_roster, which needs the whole transcript's mentions at once
             if name_cleaning.name_is_valid(cleaned_name):
-                clean_name = name_cleaning.replace_nickname_in_name(cleaned_name)
-                clean_sentence = name_cleaning.replace_nickname_in_sentence(sent.text.strip())
                 identified_names.append({
-                    "name": clean_name,
+                    "name": cleaned_name,
                     "sentence_index": i,
-                    "sentence": clean_sentence
+                    "sentence": sent.text.strip()
                 })
-    
+
     # DEBUG
     # for identified_name in identified_names:
     #     print(f"{identified_name['name']} | {identified_name['sentence_index']} | {identified_name['sentence']}")
-    
-    return identified_names, raw_sentences
-    
-    
-def match_players_to_roster(identified_names: list[dict]) -> dict:
-    # save list of real NFL players to nfl_player_roster
-    # nfl.get_nfl_players()
-    nfl_player_roster = {}
-    with open("./resources/nfl_roster.json", "r") as f:
-        nfl_player_roster = json.load(f)
-        
-    nfl_player_names = nfl_player_roster.keys()
 
-    # fuzzy match identified names to nfl_player_roster, and save in final_player_object
+    return identified_names, raw_sentences
+
+
+def match_players_to_roster(identified_names: list[dict], raw_sentences: list = None) -> tuple[dict, list[str]]:
+    """Resolve every heard name to a roster player.
+
+    Returns the per-player occurrence object and the transcript's sentences with
+    canonical player names substituted in, which is what the NLI step scores against.
+
+    Resolution runs in two passes. The first finds the players this transcript names in
+    full and unambiguously; the second re-resolves everything with those as context, so a
+    bare "Tucker" becomes Tucker Kraft when the hosts introduced him properly earlier,
+    instead of some other Tucker on the roster.
+    """
+    resolver = player_resolver.get_resolver()
+
+    heard_names = [entry['name'] for entry in identified_names]
+    context = resolver.build_context(set(heard_names))
+    print(f"Context anchors from full-name mentions: {len(context)}")
+
+    # one resolve per distinct spelling, not per mention
+    resolved = {name: resolver.resolve(name, context=context) for name in set(heard_names)}
+
+    # Drop anyone who resolved to a player the report has no business scoring: retired
+    # players invoked as comparisons, and defensive or offensive-line players mentioned in
+    # passing. They are matched first and discarded second on purpose -- letting a retired
+    # name resolve to itself stops it attaching to an active player who sounds similar.
+    dropped = {name: hit['name'] for name, hit in resolved.items()
+               if hit and not hit['analyzable']}
+    if dropped:
+        print(f"Dropped {len(dropped)} non-analyzable matches: {dropped}")
+    resolved = {name: hit for name, hit in resolved.items()
+                if hit and hit['analyzable']}
+
+    # heard spelling -> canonical name, for rewriting the sentences the model sees
+    rewrites = {name.lower(): hit['name'] for name, hit in resolved.items()}
+
     final_player_object = {}
     for player_object in identified_names:
-        player = player_object['name']
-        closest_player_list = process.extract(player, nfl_player_names, limit=5, scorer=fuzz.token_set_ratio)
-                
-        possible_matches = [close_player for close_player in closest_player_list if close_player[1] == 100]
-        if len(possible_matches) < 1: 
-            possible_matches = [close_player for close_player in closest_player_list if close_player[1] > 80]
-       
-        final_name = ""
-        status = ""
-        if (len(possible_matches) == 0):
-            # no matches
-            final_name = player
-            status = "no match"
+        heard = player_object['name']
+        hit = resolved.get(heard)
+        if not hit:
+            continue
+
+        final_name = hit['name']
+        original_sentence = player_object['sentence']
+        sentence = name_cleaning.rewrite_names_in_sentence(original_sentence, rewrites)
+
+        occurrence = {
+            "transcript_name": heard,
+            "player_id": hit['player_id'],
+            "matched_name": final_name,
+            "score": int(round(hit['confidence'] * 100)),
+            "confidence": hit['confidence'],
+            "match_tier": hit['match_tier'],
+            # "high" | "probable" | "low" -- the confidence band, which the frontend
+            # renders as the match-quality indicator and sorts on
+            "status": hit['band'],
+            "sentence_index": player_object['sentence_index'],
+            "sentence": sentence,
+            "original sentence": original_sentence,
+            "player_team": hit['team'],
+        }
+
+        if final_name in final_player_object:
+            final_player_object[final_name]['occurrence_array'].append(occurrence)
+            final_player_object[final_name]['mentioned_sentence_indexes'].add(player_object['sentence_index'])
         else:
-            # perfect match or multiple matches
-            final_name = possible_matches[0][0]
-            # replace name in sentence with final_name
-            original_sentence = player_object['sentence']
-            player_object['sentence'] = player_object['sentence'].replace(player, final_name)
-            
-            status = "perfect match" if len(possible_matches) == 1 else "best of multiple matches"
-            
-            if final_name in final_player_object:
-                final_player_object[final_name]['occurrence_array'].append({
-                    "transcript_name": player,
-                    "player_id": nfl_player_roster[final_name]['id'],
-                    "matched_name": final_name,
-                    "score": possible_matches[0][1] if len(possible_matches) > 0 else 0,
-                    "status": status,
-                    "sentence_index": player_object['sentence_index'],
-                    "sentence": player_object['sentence'],
-                    "original sentence": original_sentence,
-                    "player_team": nfl_player_roster[final_name]['team'],
-                })
-                final_player_object[final_name]['mentioned_sentence_indexes'].add(player_object['sentence_index'])
-            else:
-                final_player_object[final_name] = {
-                    'occurrence_array': [{
-                        "transcript_name": player,
-                        "player_id": nfl_player_roster[final_name]['id'],
-                        "matched_name": final_name,
-                        "score": possible_matches[0][1] if len(possible_matches) > 0 else 0,
-                        "status": status,
-                        "sentence_index": player_object['sentence_index'],
-                        "sentence": player_object['sentence'],
-                        "original sentence": original_sentence,
-                        "player_team": nfl_player_roster[final_name]['team'],
-                    }],
-                    'mentioned_sentence_indexes': set([player_object['sentence_index']])
-                }
-    
-    # sorted_final_player_object = sorted(final_player_object, key=lambda x: x['matched_name'].lower()) 
-    # sorted_final_player_object = dict(sorted(final_player_object.items()))
-    # print(sorted_final_player_object)    
-    return final_player_object
+            final_player_object[final_name] = {
+                'occurrence_array': [occurrence],
+                'mentioned_sentence_indexes': set([player_object['sentence_index']])
+            }
+
+    # the NLI premise has to spell each player the same way the hypothesis does
+    analysis_sentences = []
+    if raw_sentences is not None:
+        analysis_sentences = [
+            name_cleaning.rewrite_names_in_sentence(
+                sent if isinstance(sent, str) else sent.text.strip(), rewrites
+            )
+            for sent in raw_sentences
+        ]
+
+    return final_player_object, analysis_sentences
 
 
 # service functions 
 def set_up_to_analyze(transcript: str) -> dict:
     identified_names, raw_sentences = process_transcript(podcast_transcript_text=transcript)
     print("Total Identified Names:", len(identified_names))
-    
-    final_player_object = match_players_to_roster(identified_names)
+
+    final_player_object, analysis_sentences = match_players_to_roster(identified_names, raw_sentences)
     print("Total Unique Players Mentioned:", len(final_player_object))
     print(final_player_object)
-    
+
     # Convert sets to lists for JSON serialization
     for player in final_player_object.values():
         if isinstance(player.get('mentioned_sentence_indexes'), set):
             player['mentioned_sentence_indexes'] = list(player['mentioned_sentence_indexes'])
-    
+
     return {
         "final_player_object": final_player_object,
-        "stripped_sentences": [sent.text.strip() for sent in raw_sentences]
+        "stripped_sentences": analysis_sentences
     }
 
 def analyze(transcript: str) -> dict:
     identified_names, raw_sentences = process_transcript(podcast_transcript_text=transcript)
     print("Total Identified Names:", len(identified_names))
-    
-    final_player_object = match_players_to_roster(identified_names)
+
+    final_player_object, analysis_sentences = match_players_to_roster(identified_names, raw_sentences)
     print("Total Unique Players Mentioned:", len(final_player_object))
     print(final_player_object)
-    
-    player_sentiments = nli.analyze_sentiment(final_player_object, raw_sentences)
+
+    player_sentiments = nli.analyze_sentiment(final_player_object, analysis_sentences)
     print("Total Players with Sentiment Analysis:", len(player_sentiments))
         
     return player_sentiments
@@ -170,17 +182,17 @@ def main():
         # should be waited based on extremeness of average (100% positive, 50% negative => positive)
 
         # if only first_name found, and first_name is among previously identified fullel_names, replace first_name with full_name in sentence
-    transcipt_file_path = "../resources/transcript.txt"
+    transcipt_file_path = "../resources/transcript-2026.txt"
     identified_names, raw_sentences = process_transcript(transcipt_file_path)
     print("Total Identified Names:", len(identified_names))
     with open("../outputs/identified_names/nli_identified_names.json", "w", encoding="utf-8") as f:
         json.dump(identified_names, f, ensure_ascii=False, indent=2)
     
-    final_player_object = match_players_to_roster(identified_names)
+    final_player_object, analysis_sentences = match_players_to_roster(identified_names, raw_sentences)
     print("Total Unique Players Mentioned:", len(final_player_object))
     # print(final_player_object)
-    
-    player_sentiments = nli.analyze_sentiment(final_player_object, raw_sentences)
+
+    player_sentiments = nli.analyze_sentiment(final_player_object, analysis_sentences)
     print(player_sentiments)
     print("Total Players with Sentiment Analysis:", len(player_sentiments))
     

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 
 import {
     Card,
@@ -11,23 +11,56 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
-import { AlignRight, UserRoundCheck, UserRoundCog } from "lucide-react";
+import { AlignRight, UserRoundCheck, UserRoundCog, UserRoundSearch } from "lucide-react";
 
 import { ImageWithFallback } from "@/app/results/analyze/ImageWithBackup";
 import { Chart } from "@/app/results/analyze/Chart";
 import { OccurrenceCarousel } from "@/app/results/analyze/OccurrenceCarousel";
-import { MatchingStatus, MatchingStatusConst } from "@/app/types/analyze-types";
+import {
+    MatchingStatus,
+    MatchingStatusConst,
+    matchStatusDisplay,
+    describeMatchTier,
+} from "@/app/types/analyze-types";
 
 export default function PlayerCard({ player, analysisResult, showSidebar, onOpenDrawer }: { player: string, analysisResult: Record<string, any>, showSidebar: boolean, onOpenDrawer?: () => void }) {
     const [isHovered, setIsHovered] = useState(false);
 
+    // One icon per confidence band. The band is the strongest mention of this player
+    // anywhere in the transcript, so it answers "is this really who they were discussing".
+    const statusIconMap: Record<MatchingStatus, ReactNode> = {
+        [MatchingStatusConst.high]: <UserRoundCheck className="text-green-500" />,
+        [MatchingStatusConst.probable]: <UserRoundCog className="text-yellow-500" />,
+        [MatchingStatusConst.low]: <UserRoundSearch className="text-orange-500" />,
+    }
+
+    const statusTextClassMap: Record<MatchingStatus, string> = {
+        [MatchingStatusConst.high]: "text-green-500",
+        [MatchingStatusConst.probable]: "text-yellow-500",
+        [MatchingStatusConst.low]: "text-orange-500",
+    }
+
     function renderConfidence(matchingStatus: MatchingStatus, originalName: string) {
-        if (matchingStatus === MatchingStatusConst.perfect) {
-            return <span className="text-green-500 font-bold">Perfect Match</span>
-        }
-        else if (matchingStatus === MatchingStatusConst.imperfect) {
-            return <span className="text-yellow-500 font-bold">Partial Match (Original Name: {originalName})</span>
-        }
+        const display = matchStatusDisplay[matchingStatus];
+        if (!display) return null;
+
+        const tier = describeMatchTier(analysisResult[player].match_tier);
+        const confidence = analysisResult[player].match_confidence;
+
+        return (
+            <>
+                <span className={`${statusTextClassMap[matchingStatus]} font-bold`}>
+                    {display.label}
+                </span>
+                {confidence != null && (
+                    <span> ({Math.round(confidence * 100)}% confidence)</span>
+                )}
+                {tier && <span> | {tier}</span>}
+                {originalName && originalName.toLowerCase() !== player.toLowerCase() && (
+                    <span> | heard as &ldquo;{originalName}&rdquo;</span>
+                )}
+            </>
+        )
     }
 
     function renderConsensus(average_label: string, mode_label: string): string {
@@ -55,22 +88,23 @@ export default function PlayerCard({ player, analysisResult, showSidebar, onOpen
                         >
                             <div className="flex flex-row items-center sm:gap-4">
                                 <span className="text-2xl font-bold cursor-default">{player}</span>
-                                {
-                                    analysisResult[player].status === MatchingStatusConst.perfect
-                                        ? <UserRoundCheck className="text-green-500" />
-                                        : <UserRoundCog className="text-yellow-500" />
-                                }
+                                {statusIconMap[analysisResult[player].status as MatchingStatus]
+                                    ?? <UserRoundCog className="text-yellow-500" />}
                             </div>
 
+                            {/* Pinned to both edges of the card, not just the left: this panel is
+                                always in the DOM (it only fades), so a single long unwrapped line
+                                here widens the whole document and forces mobile to zoom out. */}
                             <div
-                                className={`absolute top-full left-0 transition-all duration-400 ease-out 
+                                className={`absolute top-full left-0 z-10 w-[17rem] max-w-[calc(100vw-4rem)]
+                                    rounded-md bg-background/95 px-2 py-1 transition-all duration-400 ease-out 
                                     ${isHovered
                                         ? "opacity-100 translate-y-0"
                                         : "opacity-0 -translate-y-5 pointer-events-none"
                                     }`}
                             >
-                                <p className="text-sm font-normal text-muted-foreground">
-                                    {renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)} | Transcript Name: {analysisResult[player].transcript_name}
+                                <p className="text-sm font-normal text-muted-foreground break-words">
+                                    {renderConfidence(analysisResult[player].status, analysisResult[player].transcript_name)}
                                 </p>
                             </div>
                         </div>

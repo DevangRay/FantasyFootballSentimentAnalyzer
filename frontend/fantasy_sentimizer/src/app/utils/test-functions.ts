@@ -24,7 +24,7 @@ export function mockCallAPI() {
                     "neutral": -3.3877978324890137,
                     "positive": -3.4777934551239014
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Aaron"
             },
             "Alvin Kamara": {
@@ -47,7 +47,7 @@ export function mockCallAPI() {
                     "neutral": -3.715744972229004,
                     "positive": -2.383521318435669
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Alvin Kamaro"
             },
             "Ben Banogu": {
@@ -70,7 +70,7 @@ export function mockCallAPI() {
                     "neutral": -2.3661341667175293,
                     "positive": -3.4449801445007324
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Ben"
             },
             "Bijan Robinson": {
@@ -93,7 +93,7 @@ export function mockCallAPI() {
                     "neutral": -1.5323458909988403,
                     "positive": -0.7643593549728394
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Bijan Robinson"
             },
             "Blake Ferguson": {
@@ -116,7 +116,7 @@ export function mockCallAPI() {
                     "neutral": -2.175111770629883,
                     "positive": -2.128349781036377
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Ferguson"
             },
             "Bralon Addison": {
@@ -148,7 +148,7 @@ export function mockCallAPI() {
                     "neutral": -3.3682574033737183,
                     "positive": -3.7928574085235596
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Addison"
             },
             "Brock Bowers": {
@@ -234,7 +234,7 @@ export function mockCallAPI() {
                     "neutral": -2.5403564274311066,
                     "positive": -2.306824430823326
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Brock Bowers"
             },
             "Caleb Benenoch": {
@@ -257,7 +257,7 @@ export function mockCallAPI() {
                     "neutral": -2.8807196617126465,
                     "positive": -2.161867618560791
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Caleb"
             },
             "Caleb Johnson": {
@@ -289,7 +289,7 @@ export function mockCallAPI() {
                     "neutral": -2.774683117866516,
                     "positive": -3.159492254257202
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Caleb Johnson"
             },
             "Caleb Williams": {
@@ -312,7 +312,7 @@ export function mockCallAPI() {
                     "neutral": -2.797001838684082,
                     "positive": -2.27099347114563
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Caleb Williams"
             },
             "Colston Loveland": {
@@ -398,7 +398,7 @@ export function mockCallAPI() {
                     "neutral": -2.7854147478938103,
                     "positive": -2.1328845396637917
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Colston Love"
             },
             "DJ Johnson": {
@@ -421,7 +421,7 @@ export function mockCallAPI() {
                     "neutral": -2.087329864501953,
                     "positive": -2.084657669067383
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Ben Johnson's"
             },
             "DJ Moore": {
@@ -444,7 +444,7 @@ export function mockCallAPI() {
                     "neutral": -3.9200446605682373,
                     "positive": -3.111210346221924
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "DJ Moore"
             },
             "Dalton Kincaid": {
@@ -494,7 +494,7 @@ export function mockCallAPI() {
                     "neutral": -2.8960497081279755,
                     "positive": -1.9355475306510925
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Dalton Kincaid"
             },
             "Daniel Jones": {
@@ -517,7 +517,7 @@ export function mockCallAPI() {
                     "neutral": -3.1435117721557617,
                     "positive": -1.49488365650177
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Daniel Jones"
             },
             "David Agoha": {
@@ -621,7 +621,7 @@ export function mockCallAPI() {
                     "neutral": -2.4035384893417358,
                     "positive": -2.3329934418201446
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "David"
             },
             "David Njoku": {
@@ -770,7 +770,7 @@ export function mockCallAPI() {
                     "neutral": -2.4815654357274375,
                     "positive": -2.0092246929804483
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "David Njoku"
             },
             "DeVonta Smith": {
@@ -793,7 +793,7 @@ export function mockCallAPI() {
                     "neutral": -2.620028257369995,
                     "positive": -1.2019832134246826
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Dvonte Smith"
             },
             "DeWayne McBride": {
@@ -816,7 +816,7 @@ export function mockCallAPI() {
                     "neutral": -1.0478355884552002,
                     "positive": -1.4574885368347168
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "KD McBride"
             },
             "Deebo Samuel": {
@@ -839,7 +839,7 @@ export function mockCallAPI() {
                     "neutral": -2.635892391204834,
                     "positive": -1.744547724723816
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Debo Samuel"
             },
             "Deshaun Watson": {
@@ -862,7 +862,7 @@ export function mockCallAPI() {
                     "neutral": -1.9984132051467896,
                     "positive": -1.6920264959335327
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Deshun Watson"
             },
             "Dillon Gabriel": {
@@ -912,7 +912,7 @@ export function mockCallAPI() {
                     "neutral": -2.58161199092865,
                     "positive": -2.2961409091949463
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Dillon Gabriel"
             },
             "Dorian Thompson-Robinson": {
@@ -935,7 +935,7 @@ export function mockCallAPI() {
                     "neutral": -3.2872157096862793,
                     "positive": -2.072420120239258
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Thompson Robinson"
             },
             "Drake London": {
@@ -958,7 +958,7 @@ export function mockCallAPI() {
                     "neutral": -2.306953191757202,
                     "positive": -2.2799057960510254
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Drake London"
             },
             "Evan Engram": {
@@ -1107,7 +1107,7 @@ export function mockCallAPI() {
                     "neutral": -2.783379014333089,
                     "positive": -2.239654286702474
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Evan Engram"
             },
             "Garrett Wilson": {
@@ -1130,7 +1130,7 @@ export function mockCallAPI() {
                     "neutral": -1.6221678256988525,
                     "positive": -0.43999916315078735
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Garrett Wilson"
             },
             "George Kittle": {
@@ -1234,7 +1234,7 @@ export function mockCallAPI() {
                     "neutral": -2.667859983444214,
                     "positive": -1.9693142294883728
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "George Kittle"
             },
             "Harold Fannin Jr.": {
@@ -1257,7 +1257,7 @@ export function mockCallAPI() {
                     "neutral": -2.877854347229004,
                     "positive": -1.3388198614120483
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Harold Fannon"
             },
             "Henry Anderson": {
@@ -1280,7 +1280,7 @@ export function mockCallAPI() {
                     "neutral": -2.1781954765319824,
                     "positive": -1.7521380186080933
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Henry"
             },
             "Hunter Henry": {
@@ -1375,7 +1375,7 @@ export function mockCallAPI() {
                     "neutral": -3.3202499548594155,
                     "positive": -2.0356576815247536
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Hunter Henry"
             },
             "Isaac TeSlaa": {
@@ -1398,7 +1398,7 @@ export function mockCallAPI() {
                     "neutral": -2.9027442932128906,
                     "positive": -2.2377424240112305
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Isaac Tessa"
             },
             "J.J. McCarthy": {
@@ -1421,7 +1421,7 @@ export function mockCallAPI() {
                     "neutral": -3.584512233734131,
                     "positive": -1.4845050573349
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "JJ McCarthy"
             },
             "J.K. Dobbins": {
@@ -1453,7 +1453,7 @@ export function mockCallAPI() {
                     "neutral": -1.545285165309906,
                     "positive": -1.6257444024085999
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "JK Dobbins"
             },
             "Jake Ferguson": {
@@ -1476,7 +1476,7 @@ export function mockCallAPI() {
                     "neutral": -3.47796368598938,
                     "positive": -2.1917803287506104
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Jake Ferguson"
             },
             "Jameis Winston": {
@@ -1499,7 +1499,7 @@ export function mockCallAPI() {
                     "neutral": -1.8821581602096558,
                     "positive": -1.104176640510559
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Jameus Winston"
             },
             "Jameson Williams": {
@@ -1549,7 +1549,7 @@ export function mockCallAPI() {
                     "neutral": -3.369231939315796,
                     "positive": -2.730730354785919
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Jameson Williams"
             },
             "Jaxson Dart": {
@@ -1572,7 +1572,7 @@ export function mockCallAPI() {
                     "neutral": -2.5481984615325928,
                     "positive": -3.4537768363952637
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Jackson Dart"
             },
             "Jayden Daniels": {
@@ -1595,7 +1595,7 @@ export function mockCallAPI() {
                     "neutral": -2.626145362854004,
                     "positive": -2.2464306354522705
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Jaden Daniels"
             },
             "Jerry Jeudy": {
@@ -1636,7 +1636,7 @@ export function mockCallAPI() {
                     "neutral": -2.7646632194519043,
                     "positive": -1.8423202435175579
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Jerry Jeudy"
             },
             "Joe Flacco": {
@@ -1695,7 +1695,7 @@ export function mockCallAPI() {
                     "neutral": -2.4009647727012635,
                     "positive": -1.541439700126648
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Joe Flacco"
             },
             "John Bates": {
@@ -1718,7 +1718,7 @@ export function mockCallAPI() {
                     "neutral": -0.7828863263130188,
                     "positive": -4.171807289123535
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "John Bates"
             },
             "Jordan Addison": {
@@ -1741,7 +1741,7 @@ export function mockCallAPI() {
                     "neutral": -3.349252223968506,
                     "positive": -1.0609642267227173
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Jordan"
             },
             "Josh Downs": {
@@ -1764,7 +1764,7 @@ export function mockCallAPI() {
                     "neutral": -3.312981367111206,
                     "positive": -2.337975025177002
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Josh Downs"
             },
             "Josh Smith": {
@@ -1787,7 +1787,7 @@ export function mockCallAPI() {
                     "neutral": -2.8547558784484863,
                     "positive": -3.23695969581604
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "John Smith"
             },
             "Justin Herbert": {
@@ -1810,7 +1810,7 @@ export function mockCallAPI() {
                     "neutral": -2.456003189086914,
                     "positive": -3.5509915351867676
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Justin Herbert"
             },
             "Kenny Pickett": {
@@ -1842,7 +1842,7 @@ export function mockCallAPI() {
                     "neutral": -3.4518563747406006,
                     "positive": -3.4386162757873535
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Kenny Kenny Picket"
             },
             "Keon Coleman": {
@@ -1865,7 +1865,7 @@ export function mockCallAPI() {
                     "neutral": -2.7279350757598877,
                     "positive": -1.5930203199386597
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Keon Coleman"
             },
             "Khalil Shakir": {
@@ -1897,7 +1897,7 @@ export function mockCallAPI() {
                     "neutral": -3.031856060028076,
                     "positive": -2.6060707569122314
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Shakir"
             },
             "Kyle Pitts Sr.": {
@@ -1992,7 +1992,7 @@ export function mockCallAPI() {
                     "neutral": -2.4703107012642755,
                     "positive": -3.1341352330313788
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Kyle Pitts"
             },
             "Kyle Williams": {
@@ -2015,7 +2015,7 @@ export function mockCallAPI() {
                     "neutral": -1.239735722541809,
                     "positive": -2.1436409950256348
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Kyle Williams"
             },
             "Kyler Murray": {
@@ -2038,7 +2038,7 @@ export function mockCallAPI() {
                     "neutral": -4.0723137855529785,
                     "positive": -2.722527027130127
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Kyler Murray"
             },
             "Mark Andrews": {
@@ -2124,7 +2124,7 @@ export function mockCallAPI() {
                     "neutral": -2.5015594512224197,
                     "positive": -2.1139532402157784
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Mark Andrews"
             },
             "Mason Taylor": {
@@ -2165,7 +2165,7 @@ export function mockCallAPI() {
                     "neutral": -2.7053017616271973,
                     "positive": -1.3228727579116821
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Mason Taylor"
             },
             "Michael Pittman Jr.": {
@@ -2188,7 +2188,7 @@ export function mockCallAPI() {
                     "neutral": -2.7317707538604736,
                     "positive": -2.6868796348571777
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Michael Pitman"
             },
             "RJ Harvey": {
@@ -2229,7 +2229,7 @@ export function mockCallAPI() {
                     "neutral": -2.323361953099569,
                     "positive": -3.550755421320597
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "R.J. Harvey"
             },
             "Sam Acho": {
@@ -2252,7 +2252,7 @@ export function mockCallAPI() {
                     "neutral": -3.1604363918304443,
                     "positive": -3.0509681701660156
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Sam Sam"
             },
             "Sam LaPorta": {
@@ -2437,7 +2437,7 @@ export function mockCallAPI() {
                     "neutral": -2.722602732871708,
                     "positive": -1.669828380016904
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Sam LePorta"
             },
             "Sean Chandler": {
@@ -2469,7 +2469,7 @@ export function mockCallAPI() {
                     "neutral": -2.662778615951538,
                     "positive": -2.8580501079559326
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Sean"
             },
             "Shedeur Sanders": {
@@ -2492,7 +2492,7 @@ export function mockCallAPI() {
                     "neutral": -1.956316351890564,
                     "positive": -2.412034511566162
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Shadur Sanders"
             },
             "Solomon Ajayi": {
@@ -2515,7 +2515,7 @@ export function mockCallAPI() {
                     "neutral": -1.9901200532913208,
                     "positive": -1.579927682876587
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Solomon"
             },
             "Stefon Diggs": {
@@ -2538,7 +2538,7 @@ export function mockCallAPI() {
                     "neutral": -1.4895521402359009,
                     "positive": -2.2677807807922363
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Stefon Diggs"
             },
             "T.J. Hockenson": {
@@ -2669,7 +2669,7 @@ export function mockCallAPI() {
                     "neutral": -2.1053987374672523,
                     "positive": -1.7452596013362591
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "T.J. Hockenson"
             },
             "Taylor Bertolet": {
@@ -2701,7 +2701,7 @@ export function mockCallAPI() {
                     "neutral": -3.8254165649414062,
                     "positive": -3.007534623146057
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Taylor"
             },
             "Terry Beckner Jr.": {
@@ -2724,7 +2724,7 @@ export function mockCallAPI() {
                     "neutral": -2.504762887954712,
                     "positive": -2.279961109161377
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Terry"
             },
             "Thomas Booker IV": {
@@ -2747,7 +2747,7 @@ export function mockCallAPI() {
                     "neutral": -4.046827793121338,
                     "positive": -4.029067039489746
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Thomas"
             },
             "Travis Bell": {
@@ -2779,7 +2779,7 @@ export function mockCallAPI() {
                     "neutral": -3.027322769165039,
                     "positive": -3.532367467880249
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Travis"
             },
             "Travis Kelce": {
@@ -2874,7 +2874,7 @@ export function mockCallAPI() {
                     "neutral": -2.5406447649002075,
                     "positive": -2.0121989250183105
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Travis Kelce"
             },
             "Trey McBride": {
@@ -2933,7 +2933,7 @@ export function mockCallAPI() {
                     "neutral": -2.320661520957947,
                     "positive": -2.504438018798828
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Trey McBride"
             },
             "Tucker Kraft": {
@@ -3091,7 +3091,7 @@ export function mockCallAPI() {
                     "neutral": -2.882198601961136,
                     "positive": -1.905210804194212
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Tucker Craft"
             },
             "Tyler Warren": {
@@ -3150,7 +3150,7 @@ export function mockCallAPI() {
                     "neutral": -3.114104413986206,
                     "positive": -1.690774991363287
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Tyler Warren"
             },
             "Wilson Huber": {
@@ -3173,7 +3173,7 @@ export function mockCallAPI() {
                     "neutral": -1.94727623462677,
                     "positive": -1.4878507852554321
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Wilson"
             },
             "Zach Ertz": {
@@ -3214,7 +3214,7 @@ export function mockCallAPI() {
                     "neutral": -2.865545312563578,
                     "positive": -1.3356057728330295
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Zach Ertz"
             },
             "Zachary Carter": {
@@ -3237,7 +3237,7 @@ export function mockCallAPI() {
                     "neutral": -2.107487678527832,
                     "positive": -2.3781776428222656
                 },
-                "status": "perfect match",
+                "status": "high",
                 "transcript_name": "Zachary"
             },
             "Zack Annexstad": {
@@ -3287,7 +3287,7 @@ export function mockCallAPI() {
                     "neutral": -3.6087822318077087,
                     "positive": -2.5955555140972137
                 },
-                "status": "best of multiple matches",
+                "status": "probable",
                 "transcript_name": "Zack"
             }
         }

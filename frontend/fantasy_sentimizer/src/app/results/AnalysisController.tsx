@@ -4,20 +4,13 @@ import { useRouter } from "next/navigation";
 
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
 import { performAnalysisStream } from "@/app/api/sentiment_analysis_api";
-import HighlightWord from "@/app/results/analyze/HighlightPlayer";
 import PlayerCard from "@/app/results/analyze/PlayerCard";
+import { OccurrenceCard } from "@/app/results/analyze/OccurrenceCard";
 import { SentimentObject } from "@/app/types/analyze-types";
 import { mockCallAPI } from "@/app/utils/test-functions";
-
-const labelColorMap: Record<string, { text: string; bg: string }> = {
-    positive: { text: "#22c55e", bg: "#dcfce7" },
-    negative: { text: "#ef4444", bg: "#fee2e2" },
-    neutral: { text: "#2563eb", bg: "#dbeafe" },
-}
 
 export default function AnalysisController({ transcriptText }: { transcriptText: string }) {
     const [loading, setLoading] = useState<boolean>(true);
@@ -68,12 +61,15 @@ export default function AnalysisController({ transcriptText }: { transcriptText:
     function sortPlayersByStatusAndMentions(obj: SentimentObject) {
         return Object.keys(obj)
             .sort((a, b) => {
-                const statusOrder = {
-                    "perfect match": 0,
-                    "best of multiple matches": 1
+                // best-matched players first, so the most trustworthy cards lead
+                const statusOrder: Record<string, number> = {
+                    high: 0,
+                    probable: 1,
+                    low: 2,
                 }
 
-                const statusDiff = statusOrder[obj[a].status] - statusOrder[obj[b].status]
+                const rank = (status: string) => statusOrder[status] ?? 99;
+                const statusDiff = rank(obj[a].status) - rank(obj[b].status);
                 if (statusDiff !== 0) return statusDiff;
 
                 return obj[b].detailed_sentiment.length - obj[a].detailed_sentiment.length;
@@ -175,26 +171,14 @@ export default function AnalysisController({ transcriptText }: { transcriptText:
                                         </div>
 
                                         <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
-                                            {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => {
-                                                const colors = labelColorMap[occurrence.best_label] ?? { text: "#60646b", bg: "#f3f4f6" };
-                                                return (
-                                                    <Card key={index}>
-                                                        <CardHeader className="flex flex-row items-center justify-between py-2 px-4 border-b">
-                                                            <span className="text-xs text-muted-foreground">Mention {index + 1}</span>
-                                                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
-                                                                style={{ color: colors.text, backgroundColor: colors.bg }}>
-                                                                {occurrence.best_label}
-                                                            </span>
-                                                        </CardHeader>
-
-                                                        <CardContent className="px-4 py-3">
-                                                            <p className="text-sm leading-relaxed">
-                                                                <HighlightWord text={occurrence.text} wordToBold={openDrawerPlayer} />
-                                                            </p>
-                                                        </CardContent>
-                                                    </Card>
-                                                );
-                                            })}
+                                            {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => (
+                                                <OccurrenceCard
+                                                    key={index}
+                                                    occurrence={occurrence}
+                                                    player={openDrawerPlayer}
+                                                    index={index}
+                                                />
+                                            ))}
                                         </div>
                                     </div>
                                 )}
@@ -210,26 +194,14 @@ export default function AnalysisController({ transcriptText }: { transcriptText:
                                     </div>
                                     <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
                                         <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-4">
-                                            {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => {
-                                                const colors = labelColorMap[occurrence.best_label] ?? { text: "#60646b", bg: "#f3f4f6" };
-                                                return (
-                                                    <Card key={index}>
-                                                        <CardHeader className="flex flex-row items-center justify-between py-2 px-4 border-b">
-                                                            <span className="text-xs text-muted-foreground">Mention {index + 1}</span>
-                                                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
-                                                                style={{ color: colors.text, backgroundColor: colors.bg }}>
-                                                                {occurrence.best_label}
-                                                            </span>
-                                                        </CardHeader>
-
-                                                        <CardContent className="px-4 py-3">
-                                                            <p className="text-sm leading-relaxed">
-                                                                <HighlightWord text={occurrence.text} wordToBold={openDrawerPlayer} />
-                                                            </p>
-                                                        </CardContent>
-                                                    </Card>
-                                                );
-                                            })}
+                                            {analysisResult[openDrawerPlayer].detailed_sentiment.map((occurrence, index) => (
+                                                <OccurrenceCard
+                                                    key={index}
+                                                    occurrence={occurrence}
+                                                    player={openDrawerPlayer}
+                                                    index={index}
+                                                />
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
